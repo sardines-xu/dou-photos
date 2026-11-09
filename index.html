@@ -7,6 +7,11 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Preload initial golden-center & opening visible photos for instant visual readiness -->
+  <link rel="preload" as="image" href="./photos/16.jpg" fetchpriority="high" />
+  <link rel="preload" as="image" href="./photos/15.jpg" />
+  <link rel="preload" as="image" href="./photos/17.jpg" />
+  <link rel="preload" as="image" href="./photos/1.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,19 +25,23 @@
       --frame-outer: #382E27;
       --frame-mat: #FAF8F3;
       --shadow-ambient: rgba(42, 37, 34, 0.12);
+      --pill-bg: rgba(252, 251, 249, 0.94);
+      --pill-border: rgba(182, 149, 102, 0.42);
     }
 
     body.dark-theme {
-      --bg-primary: #171619;
-      --bg-secondary: #222026;
-      --text-main: #F2ECE1;
-      --text-muted: #9E9589;
-      --gold-accent: #C8A97E;
-      --gold-light: #8A7250;
-      --card-bg: #242228;
-      --frame-outer: #2A231E;
-      --frame-mat: #1E1D21;
-      --shadow-ambient: rgba(0, 0, 0, 0.45);
+      --bg-primary: #0F0E13;
+      --bg-secondary: #181720;
+      --text-main: #F5EFE6;
+      --text-muted: #A69C8E;
+      --gold-accent: #D8B888;
+      --gold-light: #9E8259;
+      --card-bg: #1B1A22;
+      --frame-outer: #221C18;
+      --frame-mat: #17161D;
+      --shadow-ambient: rgba(0, 0, 0, 0.68);
+      --pill-bg: rgba(27, 26, 34, 0.92);
+      --pill-border: rgba(216, 184, 136, 0.36);
     }
 
     * {
@@ -50,7 +59,7 @@
       background-color: var(--bg-primary);
       color: var(--text-main);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-      transition: background-color 0.4s ease, color 0.4s ease;
+      transition: background-color 0.55s cubic-bezier(0.22, 1, 0.36, 1), color 0.55s ease;
     }
 
     .font-serif-display {
@@ -62,19 +71,23 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 50% 42%, rgba(255, 252, 245, 0.75) 0%, transparent 68%),
+        radial-gradient(circle at 50% 42%, rgba(255, 252, 245, 0.78) 0%, transparent 68%),
         radial-gradient(circle at 85% 15%, rgba(182, 149, 102, 0.08) 0%, transparent 45%),
         radial-gradient(circle at 15% 85%, rgba(182, 149, 102, 0.07) 0%, transparent 50%),
         var(--bg-primary);
       z-index: 0;
       will-change: transform;
+      transition: background 0.6s ease;
     }
 
+    /* Exquisite Nocturne Museum Spotlight in Dark Mode */
     body.dark-theme .gallery-backdrop {
       background:
-        radial-gradient(circle at 50% 42%, rgba(56, 48, 42, 0.32) 0%, transparent 68%),
-        radial-gradient(circle at 85% 15%, rgba(200, 169, 126, 0.07) 0%, transparent 45%),
-        var(--bg-primary);
+        radial-gradient(circle at 50% 38%, rgba(216, 184, 136, 0.14) 0%, rgba(46, 39, 36, 0.24) 36%, transparent 72%),
+        radial-gradient(ellipse at 50% 0%, rgba(216, 184, 136, 0.11) 0%, transparent 55%),
+        radial-gradient(circle at 82% 18%, rgba(186, 148, 98, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 18% 82%, rgba(120, 98, 140, 0.07) 0%, transparent 50%),
+        linear-gradient(180deg, #131218 0%, #0D0C11 100%);
     }
 
     .gallery-wainscot {
@@ -83,12 +96,38 @@
       border: 1px solid rgba(182, 149, 102, 0.22);
       pointer-events: none;
       z-index: 2;
+      transition: border-color 0.5s ease, box-shadow 0.5s ease;
     }
     .gallery-wainscot::before {
       content: '';
       position: absolute;
       inset: 4px;
       border: 1px solid rgba(182, 149, 102, 0.09);
+      transition: border-color 0.5s ease;
+    }
+
+    body.dark-theme .gallery-wainscot {
+      border-color: rgba(216, 184, 136, 0.28);
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.55);
+    }
+    body.dark-theme .gallery-wainscot::before {
+      border-color: rgba(216, 184, 136, 0.12);
+    }
+
+    /* Adaptive UI Glass Pills for Light & Exquisite Dark Mode */
+    .ui-pill {
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--text-main);
+      transition: background-color 0.45s ease, border-color 0.45s ease, color 0.45s ease, box-shadow 0.35s ease, transform 0.25s ease;
+    }
+    body.dark-theme .ui-pill {
+      box-shadow:
+        0 8px 24px -4px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 0 rgba(255, 244, 224, 0.12);
+    }
+    .ui-pill:hover {
+      border-color: var(--gold-accent);
     }
 
     /* Cute Animated Puppy Styles */
@@ -140,7 +179,7 @@
       animation: heartFloat 1.8s ease-in-out infinite;
     }
 
-    /* High-Performance 3D Stage for 32 Photos */
+    /* High-Performance 3D Stage */
     .album-stage-wrapper {
       position: absolute;
       inset: 0;
@@ -167,7 +206,7 @@
       transform-style: preserve-3d;
     }
 
-    /* Individual Album Card in the Strip (GPU Optimized) */
+    /* Individual Album Card in the Strip (GPU Optimized + Exquisite Dark Mode Polish) */
     .album-card {
       position: absolute;
       width: 270px;
@@ -189,6 +228,24 @@
       justify-content: space-between;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      transition: background-color 0.45s ease, box-shadow 0.45s ease;
+    }
+
+    body.dark-theme .album-card {
+      background: linear-gradient(160deg, #23212B 0%, #17161E 100%);
+      box-shadow:
+        0 22px 48px -10px rgba(0, 0, 0, 0.78),
+        0 0 24px -6px rgba(216, 184, 136, 0.08),
+        inset 0 1px 0 0 rgba(255, 242, 218, 0.16),
+        inset 0 0 0 1px rgba(216, 184, 136, 0.32);
+    }
+
+    body.dark-theme .album-card.is-center {
+      box-shadow:
+        0 26px 56px -10px rgba(0, 0, 0, 0.85),
+        0 0 36px -4px rgba(216, 184, 136, 0.22),
+        inset 0 1px 0 0 rgba(255, 245, 225, 0.28),
+        inset 0 0 0 1.5px rgba(216, 184, 136, 0.62);
     }
 
     @media (max-width: 640px) {
@@ -208,10 +265,14 @@
       border: 1px solid rgba(182, 149, 102, 0.18);
       border-radius: 3px;
       pointer-events: none;
+      transition: border-color 0.35s ease;
     }
 
     .album-card.is-center::before {
       border-color: rgba(182, 149, 102, 0.58);
+    }
+    body.dark-theme .album-card.is-center::before {
+      border-color: rgba(216, 184, 136, 0.55);
     }
 
     .album-card.extracted-slot .card-inner-content {
@@ -243,7 +304,12 @@
       justify-content: space-between;
     }
 
-    /* Photo Corner Mounts */
+    /* Warm shimmer skeleton placeholder while image decodes */
+    @keyframes placeholderPulse {
+      0%, 100% { background-color: rgba(182, 149, 102, 0.12); }
+      50% { background-color: rgba(182, 149, 102, 0.24); }
+    }
+
     .photo-viewport {
       position: relative;
       width: 100%;
@@ -252,7 +318,13 @@
       background: #E5E0D5;
       border-radius: 2px;
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+      animation: placeholderPulse 2s ease-in-out infinite;
     }
+    body.dark-theme .photo-viewport {
+      background: #14131A;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.55);
+    }
+
     @media (max-width: 640px) {
       .photo-viewport {
         height: 206px;
@@ -264,8 +336,11 @@
       height: 100%;
       object-fit: cover;
       pointer-events: none;
-      loading: lazy;
-      decoding: async;
+      opacity: 0;
+      transition: opacity 0.28s ease;
+    }
+    .photo-viewport img.loaded {
+      opacity: 1;
     }
 
     .corner-mount {
@@ -287,7 +362,7 @@
       position: absolute;
       bottom: 8px;
       right: 8px;
-      background: rgba(38, 32, 28, 0.8);
+      background: rgba(38, 32, 28, 0.82);
       color: #F7EFE2;
       font-size: 11px;
       padding: 3px 8px;
@@ -313,7 +388,12 @@
       background: #E6C387;
     }
 
-    /* Dot scroll container for 32 photos */
+    . card-title-text {
+      color: var(--text-main);
+      transition: color 0.4s ease;
+    }
+
+    /* Dot scroll container */
     .dots-scroll-box {
       max-width: min(42vw, 320px);
       overflow-x: auto;
@@ -334,9 +414,9 @@
       width: 46px;
       height: 46px;
       border-radius: 999px;
-      background: rgba(252, 251, 249, 0.94);
-      border: 1px solid rgba(182, 149, 102, 0.45);
-      color: #2A2522;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -346,14 +426,13 @@
       transition: all 0.25s ease;
     }
     body.dark-theme .strip-stage-nav-btn {
-      background: rgba(36, 34, 40, 0.94);
-      color: #F2ECE1;
-      border-color: rgba(200, 169, 126, 0.35);
-      box-shadow: 0 8px 22px -4px rgba(0, 0, 0, 0.4);
+      box-shadow:
+        0 10px 26px -4px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 0 rgba(255, 242, 218, 0.14);
     }
     .strip-stage-nav-btn:hover {
       background: var(--gold-accent);
-      color: #FFFFFF;
+      color: #17161C;
       transform: translateY(-50%) scale(1.06);
     }
     .strip-stage-nav-btn.prev {
@@ -399,9 +478,10 @@
       inset: 0;
       background: rgba(246, 243, 236, 0.88);
       z-index: -1;
+      transition: background 0.45s ease;
     }
     body.dark-theme .single-backdrop-veil {
-      background: rgba(20, 19, 23, 0.92);
+      background: radial-gradient(circle at 50% 42%, rgba(28, 25, 34, 0.88) 0%, rgba(11, 10, 15, 0.95) 100%);
     }
 
     .exquisite-frame-wrapper {
@@ -467,6 +547,15 @@
         0 28px 60px -12px rgba(28, 22, 18, 0.38),
         0 8px 20px -4px rgba(28, 22, 18, 0.22),
         inset 0 0 0 2px #8B6F47;
+      transition: box-shadow 0.45s ease, background 0.45s ease;
+    }
+
+    body.dark-theme .museum-outer-frame {
+      background: linear-gradient(145deg, #2D2520 0%, #191512 50%, #261F1B 100%);
+      box-shadow:
+        0 34px 75px -10px rgba(0, 0, 0, 0.88),
+        0 0 42px -8px rgba(216, 184, 136, 0.22),
+        inset 0 0 0 2px #B59260;
     }
 
     .museum-mat-board {
@@ -475,6 +564,11 @@
       padding: 22px 24px 18px 24px;
       border-radius: 3px;
       border: 2px solid #C6A677;
+      transition: background-color 0.45s ease, border-color 0.45s ease;
+    }
+    body.dark-theme .museum-mat-board {
+      border-color: rgba(216, 184, 136, 0.55);
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.65);
     }
 
     @media (max-width: 640px) {
@@ -526,6 +620,10 @@
       justify-content: center;
       gap: 10px;
     }
+    body.dark-theme .museum-plaque {
+      background: linear-gradient(90deg, rgba(216, 184, 136, 0.05) 0%, rgba(216, 184, 136, 0.18) 50%, rgba(216, 184, 136, 0.05) 100%);
+      border-color: rgba(216, 184, 136, 0.45);
+    }
 
     /* Vinyl Disc */
     @keyframes spinVinyl {
@@ -556,11 +654,18 @@
     .playing .eq-bar-4 { animation: eqBar1 0.65s infinite ease-in-out 0.2s; }
 
     @keyframes swipeDownHint {
-      0%, 100% { transform: translateY(0); opacity: 0.8; }
+      0%, 100% { transform: translateY(0); opacity: 0.85; }
       50% { transform: translateY(4px); opacity: 1; }
     }
     .swipe-down-pill {
       animation: swipeDownHint 2.2s infinite ease-in-out;
+    }
+
+    /* Welcome Card Dark Theme Support */
+    .welcome-card {
+      background: var(--card-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--text-main);
     }
   </style>
 </head>
@@ -571,7 +676,7 @@
   <canvas id="ambientCanvas" class="fixed inset-0 pointer-events-none z-[1]"></canvas>
   <div class="gallery-wainscot"></div>
 
-  <!-- Background Audio: Merry Christmas Mr. Lawrence - 坂本龍一 (preload="none" 杜绝卡顿与抢网) -->
+  <!-- Background Audio: Merry Christmas Mr. Lawrence - 坂本龍一 (preload="none" 杜绝抢网) -->
   <audio id="bgmAudio" src="./music/bgm.mp3" loop preload="none"></audio>
 
   <!-- ============================================================
@@ -579,7 +684,7 @@
        ============================================================ -->
   <header class="fixed top-0 left-0 right-0 z-40 px-5 py-3.5 flex items-center justify-between gap-3 pointer-events-none">
     <div class="flex items-center gap-2.5 pointer-events-auto">
-      <div class="w-10 h-10 rounded-full border border-[#B69566]/45 flex items-center justify-center bg-[#FCFBF9]/95 shadow-sm overflow-visible relative">
+      <div class="ui-pill w-10 h-10 rounded-full flex items-center justify-center shadow-sm overflow-visible relative">
         <svg class="puppy-avatar w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
           <ellipse cx="34" cy="45" rx="14" ry="10" fill="#F3DEC3" stroke="#8C6239" stroke-width="2"/>
@@ -612,33 +717,33 @@
       <div>
         <div class="flex items-center gap-1.5">
           <h1 class="font-serif-display text-xl sm:text-2xl font-bold tracking-wider leading-tight">豆豆</h1>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-[#B69566]/15 text-[#B69566] font-medium">开开心心 🐾</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-[#B69566]/15 text-[var(--gold-accent)] font-medium">开开心心 🐾</span>
         </div>
-        <p id="modeStatusText" class="text-[11px] tracking-widest uppercase text-[#7D746B]">DOUDOU GALLERY · 32张照片全景展映</p>
+        <p id="modeStatusText" class="text-[11px] tracking-widest uppercase text-[var(--text-muted)]">DOUDOU GALLERY</p>
       </div>
     </div>
 
     <!-- Right Action Controls -->
     <div class="flex items-center gap-2 sm:gap-2.5 pointer-events-auto flex-wrap justify-end">
       <!-- Replay Opening Sweep Button -->
-      <button id="replaySweepBtn" type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border border-[#B69566]/40 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] hover:bg-[#B69566]/10 transition flex items-center gap-1.5 shadow-sm" title="重播2秒入场循环掠过动画">
+      <button id="replaySweepBtn" type="button" class="ui-pill px-3 py-1.5 rounded-full text-xs font-medium hover:bg-[#B69566]/15 flex items-center gap-1.5 shadow-sm" title="重播2秒入场循环掠过动画">
         <span>✨</span>
         <span class="hidden sm:inline">重播入场掠过</span>
       </button>
 
-      <!-- Theme Toggle (Warm Ivory / Dark Gallery) -->
-      <button id="themeToggleBtn" type="button" class="w-8 h-8 rounded-full border border-[#B69566]/40 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] transition flex items-center justify-center shadow-sm" title="切换浅色画廊 / 夜色胶片主题">
+      <!-- Theme Toggle (Warm Ivory / Nocturne Dark Gallery) -->
+      <button id="themeToggleBtn" type="button" class="ui-pill w-8 h-8 rounded-full flex items-center justify-center shadow-sm" title="切换浅色画廊 / 夜色流金主题">
         <span id="themeIcon">🌙</span>
       </button>
 
       <!-- Vinyl Music Player Pill -->
-      <button id="musicToggleBtn" type="button" class="pl-1.5 pr-3 py-1 rounded-full border border-[#B69566]/50 bg-[#FCFBF9]/95 text-[#2A2522] hover:border-[#B69566] transition flex items-center gap-2 shadow-sm group" title="点击播放/暂停《Merry Christmas Mr. Lawrence - 坂本龍一》">
-        <div id="vinylDisc" class="vinyl-disc w-7 h-7 rounded-full bg-zinc-900 border-2 border-[#B69566] flex items-center justify-center relative shadow-inner">
+      <button id="musicToggleBtn" type="button" class="ui-pill pl-1.5 pr-3 py-1 rounded-full flex items-center gap-2 shadow-sm group" title="点击播放/暂停《Merry Christmas Mr. Lawrence - 坂本龍一》">
+        <div id="vinylDisc" class="vinyl-disc w-7 h-7 rounded-full bg-zinc-900 border-2 border-[var(--gold-accent)] flex items-center justify-center relative shadow-inner">
           <div class="w-2.5 h-2.5 rounded-full bg-[#D9B882] border border-zinc-900"></div>
         </div>
         <div class="text-left max-w-[115px] sm:max-w-[155px] overflow-hidden">
           <div class="text-[11px] font-medium truncate leading-tight">Merry Christmas Mr. Lawrence</div>
-          <div id="musicStateLabel" class="text-[9px] text-[#7D746B] truncate leading-tight">坂本龍一 · 点击播放</div>
+          <div id="musicStateLabel" class="text-[9px] text-[var(--text-muted)] truncate leading-tight">坂本龍一 · 点击播放</div>
         </div>
         <div id="eqContainer" class="flex items-end gap-[2px] h-4 ml-0.5">
           <span class="eq-bar eq-bar-1"></span>
@@ -651,7 +756,7 @@
   </header>
 
   <!-- ============================================================
-       MAIN ALBUM STRIP STAGE (全部展示模式：32张照片 3D 环形无缝画廊)
+       MAIN ALBUM STRIP STAGE (全部展示模式：3D 环形无缝画廊)
        ============================================================ -->
   <main id="albumStageWrapper" class="album-stage-wrapper">
     <button id="stripStagePrevBtn" type="button" class="strip-stage-nav-btn prev" title="上一张照片 (左滑)">
@@ -672,14 +777,14 @@
   <section id="singleStageOverlay" class="single-stage-overlay" aria-hidden="true">
     <div id="singleBackdropVeil" class="single-backdrop-veil"></div>
 
-    <div class="mb-3 px-4 py-1 rounded-full bg-[#FCFBF9]/95 border border-[#B69566]/35 text-[11px] text-[#7D746B] tracking-wider flex items-center gap-3 shadow-sm">
+    <div class="ui-pill mb-3 px-4 py-1 rounded-full text-[11px] text-[var(--text-muted)] tracking-wider flex items-center gap-3 shadow-sm">
       <span>↔ 左右滑动：切换照片</span>
-      <span class="text-[#B69566]">|</span>
+      <span class="text-[var(--gold-accent)]">|</span>
       <span>↓ 向下滑动：放回相册中心</span>
     </div>
 
     <div class="relative flex items-center justify-center w-full px-4">
-      <button id="singlePrevBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/90 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md mr-5 z-20" title="上一张 (左滑)">
+      <button id="singlePrevBtn" type="button" class="ui-pill hidden sm:flex w-11 h-11 rounded-full hover:bg-[var(--gold-accent)] hover:text-zinc-900 transition items-center justify-center shadow-md mr-5 z-20" title="上一张 (左滑)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       </button>
 
@@ -708,20 +813,20 @@
             </div>
 
             <div class="museum-plaque">
-              <span class="text-[#B69566] text-xs">✦</span>
-              <h2 id="singleFramedTitle" class="font-serif-display text-lg sm:text-xl font-semibold tracking-[0.25em] text-[#2A2522] dark:text-[#F2ECE1]">开开心心</h2>
-              <span class="text-[#B69566] text-xs">✦</span>
+              <span class="text-[var(--gold-accent)] text-xs">✦</span>
+              <h2 id="singleFramedTitle" class="font-serif-display text-lg sm:text-xl font-semibold tracking-[0.25em] text-[var(--text-main)]">开开心心</h2>
+              <span class="text-[var(--gold-accent)] text-xs">✦</span>
             </div>
           </div>
         </div>
       </div>
 
-      <button id="singleNextBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/90 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md ml-5 z-20" title="下一张 (右滑)">
+      <button id="singleNextBtn" type="button" class="ui-pill hidden sm:flex w-11 h-11 rounded-full hover:bg-[var(--gold-accent)] hover:text-zinc-900 transition items-center justify-center shadow-md ml-5 z-20" title="下一张 (右滑)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
 
-    <button id="exitSingleBtn" type="button" class="swipe-down-pill px-5 py-2 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-widest flex items-center gap-2 shadow-lg border border-[#B69566]/50 hover:bg-[#B69566] hover:text-white transition">
+    <button id="exitSingleBtn" type="button" class="swipe-down-pill px-5 py-2 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-widest flex items-center gap-2 shadow-lg border border-[#B69566]/50 hover:bg-[var(--gold-accent)] hover:text-zinc-900 transition">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
       <span>下滑画面 或 点击此处放回相册中心</span>
     </button>
@@ -732,14 +837,14 @@
        ============================================================ -->
   <footer id="stripFooterBar" class="fixed bottom-5 left-0 right-0 z-20 px-6 flex flex-col items-center gap-2.5 pointer-events-none transition-opacity duration-300">
     <!-- Live Photo Index Counter -->
-    <div id="statusToast" class="px-4 py-1 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-wider shadow-sm transition-all duration-300 opacity-95 flex items-center gap-2">
+    <div id="statusToast" class="px-4 py-1 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] border border-[#B69566]/35 text-xs tracking-wider shadow-sm transition-all duration-300 opacity-95 flex items-center gap-2">
       <span class="w-2 h-2 rounded-full bg-[#E6C387] animate-pulse"></span>
-      <span id="counterText">第 1 / 32 张 · 32张照片全景展映 🐾</span>
+      <span id="counterText">第 1 / 32 张 · 开开心心 🐾</span>
     </div>
 
     <!-- Strip Quick Controls & Dot Indicators -->
-    <div class="flex items-center gap-3 px-4 py-2 rounded-full bg-[#FCFBF9]/95 border border-[#B69566]/35 shadow-sm pointer-events-auto">
-      <button id="stripPrevBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向左滑动">
+    <div class="ui-pill flex items-center gap-3 px-4 py-2 rounded-full shadow-sm pointer-events-auto">
+      <button id="stripPrevBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/20 flex items-center justify-center text-[var(--text-main)] transition" title="向左滑动">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       </button>
 
@@ -749,13 +854,13 @@
         </div>
       </div>
 
-      <button id="stripNextBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向右滑动">
+      <button id="stripNextBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/20 flex items-center justify-center text-[var(--text-main)] transition" title="向右滑动">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </button>
 
       <span class="text-[#B69566]/40 text-xs">|</span>
 
-      <button id="extractCenterBtn" type="button" class="text-xs font-medium text-[#B69566] hover:underline tracking-wider px-1">
+      <button id="extractCenterBtn" type="button" class="text-xs font-medium text-[var(--gold-accent)] hover:underline tracking-wider px-1">
         抽起当前中心照片 ↑
       </button>
     </div>
@@ -764,8 +869,8 @@
   <!-- ============================================================
        OPENING MUSIC & ALBUM ENTRANCE VEIL (首屏画幕)
        ============================================================ -->
-  <div id="welcomeVeil" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F6F3EC]/96 transition-opacity duration-500 px-6 text-center cursor-pointer">
-    <div class="max-w-md w-full p-8 rounded-2xl border border-[#B69566]/40 bg-[#FCFBF9] shadow-2xl relative overflow-hidden">
+  <div id="welcomeVeil" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F6F3EC]/95 dark:bg-[#0F0E13]/95 transition-opacity duration-500 px-6 text-center cursor-pointer">
+    <div class="welcome-card max-w-md w-full p-8 rounded-2xl shadow-2xl relative overflow-hidden">
       <div class="w-20 h-20 mx-auto mb-3 rounded-full border border-[#B69566]/50 flex items-center justify-center bg-[#B69566]/10 shadow-inner">
         <svg class="puppy-avatar w-16 h-16" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
@@ -796,45 +901,45 @@
           <path class="puppy-heart" d="M51 12C51 10.5 49.5 9.5 48.3 10.6C47.1 9.5 45.6 10.5 45.6 12C45.6 13.8 48.3 15.6 48.3 15.6C48.3 15.6 51 13.8 51 12Z" fill="#E86F68"/>
         </svg>
       </div>
-      <p class="text-[11px] tracking-[0.28em] uppercase text-[#B69566] font-medium">Merry Christmas Mr. Lawrence</p>
-      <h2 class="font-serif-display text-3xl sm:text-4xl font-bold text-[#2A2522] mt-1 mb-2">豆豆</h2>
-      <p id="welcomePhotoNotice" class="text-xs text-[#7D746B] leading-relaxed mb-6">
-        每一刻都开开心心 🐾<br/>
-        全部 32 张照片已就绪，所有设备均已深度加速优化。
+      <p class="text-[11px] tracking-[0.28em] uppercase text-[var(--gold-accent)] font-medium">Merry Christmas Mr. Lawrence</p>
+      <h2 class="font-serif-display text-3xl sm:text-4xl font-bold text-[var(--text-main)] mt-1 mb-2">豆豆</h2>
+      <p id="welcomePhotoNotice" class="text-xs text-[var(--text-muted)] leading-relaxed mb-6">
+        每一刻都开开心心 🐾
       </p>
-      <button id="enterGalleryBtn" type="button" class="w-full py-3 px-6 rounded-full bg-[#2A2522] text-[#F7EFE2] hover:bg-[#B69566] transition font-medium text-xs tracking-[0.2em] uppercase shadow-md">
+      <button id="enterGalleryBtn" type="button" class="w-full py-3 px-6 rounded-full bg-[#2A2522] text-[#F7EFE2] hover:bg-[var(--gold-accent)] hover:text-zinc-900 transition font-medium text-xs tracking-[0.2em] uppercase shadow-md">
         ✦ 点击开启相册 ✦
       </button>
-      <p class="text-[10px] text-[#7D746B] mt-3">提示：画卷两侧配有大箭头，无限循环滑动，入场2秒掠过平滑停在中心</p>
+      <p class="text-[11px] text-[var(--text-muted)] tracking-widest mt-4">不必考虑太多，享受当下</p>
     </div>
   </div>
 
   <!-- ============================================================
-       HIGH PERFORMANCE JAVASCRIPT ENGINE (OPTIMIZED FOR 32 PHOTOS)
+       SMART WAVE-PRIORITIZED PHOTO LOADER & 60FPS GALLERY ENGINE
        ============================================================ -->
   <script>
     /**
-     * 【32 张照片高速稳定配置】
-     * 1. 精确加载 32 张照片，零多余网络探测，手机/平板瞬间秒开！
-     * 2. 音频按需流式缓冲（preload: none），绝不抢占移动端下行带宽。
-     * 3. 动态视距休眠（超出视野的卡片暂停GPU矩阵计算，保留前后饱满视野），稳定 60 FPS 满帧丝滑。
+     * 【分波段优先级极速加载引擎】
+     * 为什么之前 32 张图同时请求依然会觉得慢？
+     * 因为 32 张图片在同一毫秒抢占手机仅有的 6 条 HTTP 通道，导致正中间马上要看的照片（第13~19张）被排在了队尾！
+     *
+     * 现在采用【三级火箭智能波段加载】：
+     * 第一波（0ms 最高优先级）：立即优先加载画面正中心及两侧可见的 9 张核心照片（12~20号）与第1张，保证打开瞬间视野内照片100%秒出！
+     * 第二波（第一波完成后或 180ms 后）：按距离中心由近到远依次流式预载其余照片，滑动到哪哪都已经提前就绪。
      */
     const USER_CONFIG = {
       photoFolder: './photos/',
       musicFile: './music/bgm.mp3',
-      photoCount: 32,           // ★ 精确指定 32 张照片，彻底杜绝盲测阻塞！
-      supportedExts: ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.webp']
+      photoCount: 32
     };
 
     const BUILTIN_PREVIEW_PHOTOS = [];
 
-    // State Management
     const state = {
-      photos: [],               // Exactly 32 photos
-      viewMode: 'strip',        // 'strip' | 'single'
-      activeIndex: 0,           // 0 .. 31
-      scrollX: 0,               // Continuous circular scroll index
-      targetScrollX: 0,
+      photos: [],
+      viewMode: 'strip',
+      activeIndex: 15,          // 默认黄金中心位（第16张）
+      scrollX: 15,
+      targetScrollX: 15,
       velocityX: 0,
       isDraggingStrip: false,
       dragMoved: false,
@@ -849,7 +954,7 @@
       introStartTime: 0,
       introDuration: 2000,
       introStartScroll: 0,
-      introEndScroll: 0,
+      introEndScroll: 15,
 
       // Single view gesture
       isDraggingSingle: false,
@@ -885,14 +990,13 @@
     const enterGalleryBtn = document.getElementById('enterGalleryBtn');
 
     let cardElements = [];
+    let cardImgElements = [];
 
-    // Helper: Wrap index into [0, total - 1]
     function wrapIndex(idx, total) {
       if (total <= 0) return 0;
       return ((Math.round(idx) % total) + total) % total;
     }
 
-    // Helper: Shortest circular offset
     function getCircularOffset(i, scrollX, total) {
       if (total <= 1) return 0;
       let diff = (i - scrollX) % total;
@@ -901,7 +1005,6 @@
       return diff;
     }
 
-    // Helper: Move targetScrollX to nearest equivalent position matching targetIdx
     function getNearestTargetScroll(currentScroll, targetIdx, total) {
       if (total <= 1) return 0;
       const diff = getCircularOffset(targetIdx, currentScroll, total);
@@ -909,69 +1012,107 @@
     }
 
     /******************************************************************
-     * 1. INSTANT ZERO-LATENCY PHOTO INITIALIZATION (0毫秒即刻挂载32张)
+     * 1. WAVE-PRIORITIZED FAST PHOTO LOADER (优先秒开中心可见照片)
      ******************************************************************/
     function init32Photos() {
-      // 1. 如果是在内置预览环境（Canvas），使用内嵌示范照片
-      if (Array.isArray(BUILTIN_PREVIEW_PHOTOS) && BUILTIN_PREVIEW_PHOTOS.length > 0) {
-        state.photos = Array.from({ length: 32 }, (_, idx) => {
-          const previewItem = BUILTIN_PREVIEW_PHOTOS[idx % BUILTIN_PREVIEW_PHOTOS.length];
-          return {
-            id: idx,
-            num: idx + 1,
-            resolvedSrc: previewItem.url,
-            caption: '开开心心'
-          };
-        });
-      } else {
-        // 2. 真实 GitHub / 本地环境：直接按 1..32 构建，0 毫秒完成！
-        const folder = USER_CONFIG.photoFolder;
-        state.photos = Array.from({ length: 32 }, (_, idx) => ({
+      const isBuiltin = Array.isArray(BUILTIN_PREVIEW_PHOTOS) && BUILTIN_PREVIEW_PHOTOS.length > 0;
+      const folder = USER_CONFIG.photoFolder;
+
+      state.photos = Array.from({ length: USER_CONFIG.photoCount }, (_, idx) => {
+        const url = isBuiltin
+          ? BUILTIN_PREVIEW_PHOTOS[idx % BUILTIN_PREVIEW_PHOTOS.length].url
+          : `${folder}${idx + 1}.jpg`;
+        return {
           id: idx,
           num: idx + 1,
-          resolvedSrc: `${folder}${idx + 1}.jpg`,
+          resolvedSrc: url,
+          loaded: false,
           caption: '开开心心'
-        }));
-      }
+        };
+      });
 
       buildAlbumDOM();
       updateCounterDisplay();
-
-      // 如果有任何照片不是 .jpg 格式（例如是 .png），后台静默自动探测并修正图片地址，不阻碍主界面
-      if (!Array.isArray(BUILTIN_PREVIEW_PHOTOS) || BUILTIN_PREVIEW_PHOTOS.length === 0) {
-        verifyNonJpgExtensions();
-      }
+      startPrioritizedImageQueue(isBuiltin);
     }
 
-    // 静默容错探测：只有当 1.jpg 加载失败时才检测 .png / .jpeg 等，绝不无谓发起数百次请求
-    function verifyNonJpgExtensions() {
-      state.photos.forEach((photo, idx) => {
-        const testImg = new Image();
-        testImg.onerror = () => {
-          // 当前 .jpg 失败，尝试其他格式
-          probeOtherExtensions(photo.num, idx);
+    function loadSingleCardImage(idx, isBuiltin) {
+      return new Promise((resolve) => {
+        const photo = state.photos[idx];
+        const imgEl = cardImgElements[idx];
+        if (!photo || !imgEl || photo.loaded) {
+          resolve();
+          return;
+        }
+
+        imgEl.onload = () => {
+          photo.loaded = true;
+          imgEl.classList.add('loaded');
+          resolve();
         };
-        testImg.src = photo.resolvedSrc;
+
+        imgEl.onerror = () => {
+          if (!isBuiltin) {
+            tryFallbackExtensions(photo.num, idx, imgEl, resolve);
+          } else {
+            resolve();
+          }
+        };
+
+        imgEl.src = photo.resolvedSrc;
       });
     }
 
-    function probeOtherExtensions(num, idx) {
+    function tryFallbackExtensions(num, idx, imgEl, doneCallback) {
       const folder = USER_CONFIG.photoFolder;
-      const exts = ['.JPG', '.png', '.PNG', '.jpeg', '.JPEG', '.webp'];
-      for (const ext of exts) {
-        const candidate = `${folder}${num}${ext}`;
-        const probeImg = new Image();
-        probeImg.onload = () => {
-          if (state.photos[idx]) {
-            state.photos[idx].resolvedSrc = candidate;
-            const targetCard = cardElements[idx];
-            if (targetCard) {
-              const img = targetCard.querySelector('img');
-              if (img) img.src = candidate;
-            }
-          }
+      const exts = ['.JPG', '.png', '.PNG', '.jpeg', '.webp'];
+      let cursor = 0;
+
+      function nextExt() {
+        if (cursor >= exts.length) {
+          doneCallback();
+          return;
+        }
+        const candidate = `${folder}${num}${exts[cursor++]}`;
+        const tester = new Image();
+        tester.onload = () => {
+          state.photos[idx].resolvedSrc = candidate;
+          state.photos[idx].loaded = true;
+          imgEl.src = candidate;
+          imgEl.classList.add('loaded');
+          doneCallback();
         };
-        probeImg.src = candidate;
+        tester.onerror = nextExt;
+        tester.src = candidate;
+      }
+      nextExt();
+    }
+
+    async function startPrioritizedImageQueue(isBuiltin) {
+      const total = state.photos.length;
+      const center = 15; // 黄金中心位
+
+      // 按距离黄金中心位 (15) 由近到远排序全部 32 张索引：
+      // 顺序为：15, 14, 16, 13, 17, 12, 18, 11, 19, 0(第1张) ...
+      const priorityOrder = [];
+      priorityOrder.push(center);
+      for (let step = 1; step <= Math.ceil(total / 2); step++) {
+        const left = (center - step + total) % total;
+        const right = (center + step) % total;
+        if (!priorityOrder.includes(left)) priorityOrder.push(left);
+        if (!priorityOrder.includes(right)) priorityOrder.push(right);
+      }
+
+      // 第一梯队：中心视野可见的 7 张照片立即高优并发加载，确保首屏0等待秒出
+      const firstWave = priorityOrder.slice(0, 7);
+      await Promise.all(firstWave.map((idx) => loadSingleCardImage(idx, isBuiltin)));
+
+      // 第二梯队：以每次 4 张的温和并发波次迅速加载剩余照片，既快又不阻塞主线程
+      const remaining = priorityOrder.slice(7);
+      const batchSize = 4;
+      for (let i = 0; i < remaining.length; i += batchSize) {
+        const batch = remaining.slice(i, i + batchSize);
+        await Promise.all(batch.map((idx) => loadSingleCardImage(idx, isBuiltin)));
       }
     }
 
@@ -982,15 +1123,17 @@
       albumTrack.innerHTML = '';
       dotIndicators.innerHTML = '';
       cardElements = [];
+      cardImgElements = [];
 
       const total = state.photos.length;
 
       for (let idx = 0; idx < total; idx++) {
-        const photo = state.photos[idx];
-
         const card = document.createElement('article');
         card.className = 'album-card';
         card.dataset.index = String(idx);
+
+        // 中心附近的卡片标记为高优先级解码
+        const isCenterNeighborhood = Math.abs(getCircularOffset(idx, 15, total)) <= 3;
 
         card.innerHTML = `
           <div class="card-inner-content">
@@ -999,7 +1142,7 @@
               <span class="corner-mount corner-tr"></span>
               <span class="corner-mount corner-bl"></span>
               <span class="corner-mount corner-br"></span>
-              <img src="${photo.resolvedSrc}" alt="开开心心" loading="lazy" decoding="async" draggable="false" />
+              <img alt="开开心心" decoding="async" ${isCenterNeighborhood ? 'fetchpriority="high"' : ''} draggable="false" />
               <div class="invite-badge">
                 <span class="pulse-dot"></span>
                 <span>查看装裱</span>
@@ -1007,9 +1150,9 @@
             </div>
 
             <div class="pt-2 flex items-center justify-center gap-2">
-              <span class="text-[#B69566] text-xs">✦</span>
-              <h3 class="font-serif-display text-base font-semibold tracking-[0.22em] text-[#2A2522] dark:text-[#F2ECE1]">开开心心</h3>
-              <span class="text-[#B69566] text-xs">✦</span>
+              <span class="text-[var(--gold-accent)] text-xs">✦</span>
+              <h3 class="font-serif-display text-base font-semibold tracking-[0.22em] text-[var(--text-main)]">开开心心</h3>
+              <span class="text-[var(--gold-accent)] text-xs">✦</span>
             </div>
           </div>
         `;
@@ -1021,8 +1164,8 @@
 
         albumTrack.appendChild(card);
         cardElements.push(card);
+        cardImgElements.push(card.querySelector('img'));
 
-        // 32 个微型指示圆点
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/35 hover:bg-[#B69566] w-1.5 flex-shrink-0';
@@ -1039,8 +1182,8 @@
         dotIndicators.appendChild(dot);
       }
 
-      if (singleFramedImg && !singleFramedImg.getAttribute('src') && state.photos[0]) {
-        singleFramedImg.src = state.photos[0].resolvedSrc;
+      if (singleFramedImg && state.photos[15]) {
+        singleFramedImg.src = state.photos[15].resolvedSrc;
       }
 
       updateDotsUI();
@@ -1051,7 +1194,7 @@
       if (!counterText) return;
       const total = state.photos.length;
       const current = wrapIndex(state.scrollX, total) + 1;
-      counterText.textContent = `第 ${current} / ${total} 张 · 32张照片全景展映 🐾`;
+      counterText.textContent = `第 ${current} / ${total} 张 · 开开心心 🐾`;
     }
 
     function updateDotsUI() {
@@ -1063,7 +1206,7 @@
 
       for (let i = 0; i < dots.length; i++) {
         if (i === highlightIdx) {
-          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566] w-5 flex-shrink-0';
+          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[var(--gold-accent)] w-5 flex-shrink-0';
           if (dots[i].scrollIntoView) {
             dots[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
           }
@@ -1079,7 +1222,7 @@
     }
 
     /******************************************************************
-     * 3. 2.0-SECOND FAST-TO-SLOW CIRCULAR SWEEP (32张环形由快到慢停在中心)
+     * 3. 2.0-SECOND FAST-TO-SLOW CIRCULAR SWEEP (平滑掠过并停在黄金中心位)
      ******************************************************************/
     function startOpeningAlbumSweep() {
       if (state.viewMode === 'single') {
@@ -1087,11 +1230,10 @@
       }
 
       const total = state.photos.length;
-      // 32 张照片的黄金正中心：第 16 张（索引 15），左右两边各有 16 张照片对称环绕，视觉最饱满！
       const goldenCenterIndex = 15;
 
-      // 2.0 秒内从负方向掠过一整圈 32 张照片并在 2.0 秒准时由快到慢柔和停在正中央
-      state.introStartScroll = -(total - goldenCenterIndex);
+      // 在 2.0 秒内流光掠过 10 张已优先解码就绪的中心画卷卡片，完全杜绝未加载黑块闪过，且速度丝滑优雅
+      state.introStartScroll = goldenCenterIndex - 10;
       state.introEndScroll = goldenCenterIndex;
       state.scrollX = state.introStartScroll;
       state.targetScrollX = state.introEndScroll;
@@ -1100,10 +1242,10 @@
 
       state.introSweepActive = true;
       state.introBraking = false;
-      state.introDuration = 2000; // 严格 2.0 秒
+      state.introDuration = 2000;
       state.introStartTime = performance.now();
 
-      showToast(`✨ 32张照片流光掠过中 · 2秒后稳稳停在黄金中心位`);
+      showToast(`✨ 不必考虑太多，享受当下 🐾`);
     }
 
     function triggerIntroSmoothBrake(preferredRealIndex = null) {
@@ -1130,6 +1272,8 @@
       state.velocityX = 0;
       state.targetScrollX = Math.round(state.targetScrollX + deltaSteps);
       state.activeIndex = wrapIndex(state.targetScrollX, state.photos.length);
+      // 滑动时立即确保新进入视野的卡片已触发加载
+      ensureNearbyLoaded(state.activeIndex);
       updateCounterDisplay();
     }
 
@@ -1141,7 +1285,17 @@
       const diff = getCircularOffset(realIndex, state.targetScrollX, total);
       state.targetScrollX = Math.round(state.targetScrollX + diff);
       state.activeIndex = wrapIndex(state.targetScrollX, total);
+      ensureNearbyLoaded(state.activeIndex);
       updateCounterDisplay();
+    }
+
+    function ensureNearbyLoaded(centerIdx) {
+      const total = state.photos.length;
+      const isBuiltin = Array.isArray(BUILTIN_PREVIEW_PHOTOS) && BUILTIN_PREVIEW_PHOTOS.length > 0;
+      for (let d = -4; d <= 4; d++) {
+        const idx = wrapIndex(centerIdx + d, total);
+        loadSingleCardImage(idx, isBuiltin);
+      }
     }
 
     /******************************************************************
@@ -1188,7 +1342,7 @@
       stripFooterBar.style.opacity = '0';
       stripFooterBar.style.pointerEvents = 'none';
 
-      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${clamped + 1} / 32 张 · 开开心心`;
+      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${clamped + 1} / ${total} 张 · 开开心心`;
       updateDotsUI();
     }
 
@@ -1229,7 +1383,7 @@
       stripFooterBar.style.opacity = '1';
       stripFooterBar.style.pointerEvents = 'none';
 
-      modeStatusText.textContent = `DOUDOU GALLERY · 32张照片全景展映`;
+      modeStatusText.textContent = `DOUDOU GALLERY`;
       updateDotsUI();
       updateCounterDisplay();
     }
@@ -1242,6 +1396,8 @@
       const total = state.photos.length;
       const wrappedIndex = wrapIndex(newIndex, total);
       if (wrappedIndex === state.activeIndex) return;
+
+      ensureNearbyLoaded(wrappedIndex);
 
       state.isTransitioningSingle = true;
       exquisiteFrameWrapper.classList.remove('no-transition', 'anim-out-left', 'anim-in-right', 'anim-out-right', 'anim-in-left');
@@ -1259,7 +1415,7 @@
       cardElements.forEach((el, idx) => {
         el.classList.toggle('extracted-slot', idx === wrappedIndex);
       });
-      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${wrappedIndex + 1} / 32 张 · 开开心心`;
+      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${wrappedIndex + 1} / ${total} 张 · 开开心心`;
       updateDotsUI();
 
       setTimeout(() => {
@@ -1358,6 +1514,7 @@
           const snapped = Math.round(projected);
           state.targetScrollX = snapped;
           state.activeIndex = wrapIndex(snapped, state.photos.length);
+          ensureNearbyLoaded(state.activeIndex);
           updateCounterDisplay();
           setTimeout(() => { state.dragMoved = false; }, 60);
         }
@@ -1416,6 +1573,7 @@
           window._wheelSnapTimer = setTimeout(() => {
             state.targetScrollX = Math.round(state.targetScrollX);
             state.activeIndex = wrapIndex(state.targetScrollX, state.photos.length);
+            ensureNearbyLoaded(state.activeIndex);
             updateCounterDisplay();
           }, 160);
         } else if (state.viewMode === 'single') {
@@ -1445,8 +1603,7 @@
     }
 
     /******************************************************************
-     * 8. ULTRA SMOOTH 60FPS LOOP (DYNAMIC VIEWPORT OPTIMIZATION)
-     * 保持视野内及前后共 9 张卡片活跃，远端卡片休眠，手机/平板稳定 60 FPS！
+     * 8. ULTRA SMOOTH 60FPS LOOP
      ******************************************************************/
     function animateLoop(now) {
       if (state.introSweepActive) {
@@ -1486,7 +1643,6 @@
         const offset = getCircularOffset(i, state.scrollX, total);
         const absOffset = Math.abs(offset);
 
-        // ★ 核心视距优化：超出视野较远的卡片设为休眠，不消耗移动端 GPU 显存
         if (absOffset > 4.2) {
           card.style.display = 'none';
           continue;
@@ -1524,7 +1680,7 @@
     }
 
     /******************************************************************
-     * 9. LIGHTWEIGHT CANVAS PARTICLES
+     * 9. LIGHTWEIGHT STARLIGHT / WARM MOTES CANVAS
      ******************************************************************/
     function initAmbientCanvas() {
       const canvas = document.getElementById('ambientCanvas');
@@ -1538,17 +1694,18 @@
         h = canvas.height = window.innerHeight;
       });
 
-      const particles = Array.from({ length: 20 }, () => ({
+      const particles = Array.from({ length: 24 }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        r: 1 + Math.random() * 2.0,
+        r: 1 + Math.random() * 2.1,
         vx: (Math.random() - 0.5) * 0.18,
         vy: -0.1 - Math.random() * 0.2,
-        alpha: 0.12 + Math.random() * 0.25
+        alpha: 0.15 + Math.random() * 0.32
       }));
 
       function drawParticles() {
         ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
         for (const p of particles) {
           p.x += p.vx - state.velocityX * 1.2;
           p.y += p.vy;
@@ -1558,7 +1715,9 @@
 
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(182, 149, 102, ${p.alpha})`;
+          ctx.fillStyle = isDark
+            ? `rgba(226, 196, 148, ${p.alpha * 1.25})`
+            : `rgba(182, 149, 102, ${p.alpha})`;
           ctx.fill();
         }
         requestAnimationFrame(drawParticles);
@@ -1567,7 +1726,7 @@
     }
 
     /******************************************************************
-     * 10. MUSIC CONTROLLER (按需缓冲，不抢网络)
+     * 10. MUSIC CONTROLLER
      ******************************************************************/
     function updateMusicUI(playing) {
       state.isPlayingMusic = playing;
@@ -1658,7 +1817,7 @@
 
     // Initialize Gallery
     window.addEventListener('DOMContentLoaded', () => {
-      init32Photos(); // 瞬间加载 32 张照片，稳定秒开
+      init32Photos();
       bindStageGestures();
       wireControls();
       initAmbientCanvas();

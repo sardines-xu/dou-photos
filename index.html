@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>豆豆 · 专属相册</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #F6F3EC;
+      --bg-secondary: #EDE8DF;
+      --text-main: #2A2522;
+      --text-muted: #7D746B;
+      --gold-accent: #B69566;
+      --gold-light: #DFC9A6;
+      --card-bg: #FCFBF9;
+      --frame-outer: #382E27;
+      --frame-mat: #FAF8F3;
+      --shadow-ambient: rgba(42, 37, 34, 0.14);
+    }
+
+    body.dark-theme {
+      --bg-primary: #171619;
+      --bg-secondary: #222026;
+      --text-main: #F2ECE1;
+      --text-muted: #9E9589;
+      --gold-accent: #C8A97E;
+      --gold-light: #8A7250;
+      --card-bg: #242228;
+      --frame-outer: #2A231E;
+      --frame-mat: #1E1D21;
+      --shadow-ambient: rgba(0, 0, 0, 0.48);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      transition: background-color 0.6s ease, color 0.6s ease;
+    }
+
+    .font-serif-display {
+      font-family: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
+    }
+
+    /* Minimalist Soft Ambient Background */
+    .gallery-backdrop {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 252, 245, 0.75) 0%, transparent 68%),
+        radial-gradient(circle at 85% 15%, rgba(182, 149, 102, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 15% 85%, rgba(182, 149, 102, 0.07) 0%, transparent 50%),
+        var(--bg-primary);
+      z-index: 0;
+      transition: background 0.6s ease;
+    }
+
+    body.dark-theme .gallery-backdrop {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(56, 48, 42, 0.32) 0%, transparent 68%),
+        radial-gradient(circle at 85% 15%, rgba(200, 169, 126, 0.07) 0%, transparent 45%),
+        var(--bg-primary);
+    }
+
+    /* Subtle museum wall border lines */
+    .gallery-wainscot {
+      position: fixed;
+      inset: 16px;
+      border: 1px solid rgba(182, 149, 102, 0.22);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .gallery-wainscot::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px solid rgba(182, 149, 102, 0.09);
+    }
+
+    /* Cute Animated Puppy Styles */
+    @keyframes puppyBounce {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(2deg); }
+    }
+    @keyframes tailWag {
+      0%, 100% { transform: rotate(-16deg); }
+      50% { transform: rotate(22deg); }
+    }
+    @keyframes earFlopLeft {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-8deg); }
+    }
+    @keyframes earFlopRight {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg); }
+    }
+    @keyframes eyeBlink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
+    }
+    @keyframes heartFloat {
+      0%, 100% { transform: translateY(0) scale(0.9); opacity: 0.75; }
+      50% { transform: translateY(-4px) scale(1.12); opacity: 1; }
+    }
+
+    .puppy-avatar {
+      animation: puppyBounce 2.2s ease-in-out infinite;
+    }
+    .puppy-tail {
+      transform-origin: 48px 42px;
+      animation: tailWag 0.45s ease-in-out infinite;
+    }
+    .puppy-ear-l {
+      transform-origin: 20px 20px;
+      animation: earFlopLeft 1.1s ease-in-out infinite;
+    }
+    .puppy-ear-r {
+      transform-origin: 44px 20px;
+      animation: earFlopRight 1.1s ease-in-out infinite;
+    }
+    .puppy-eyes {
+      transform-origin: 32px 28px;
+      animation: eyeBlink 3.6s infinite;
+    }
+    .puppy-heart {
+      animation: heartFloat 1.8s ease-in-out infinite;
+    }
+
+    /* 3D Stage for Album Strip */
+    .album-stage-wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1500px;
+      z-index: 10;
+      transition: transform 0.82s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+                  filter 0.72s ease;
+      will-change: transform, opacity;
+      touch-action: none;
+    }
+
+    /* When a photo is extracted into Single View, the album strip slowly sinks down */
+    .album-stage-wrapper.sunken {
+      transform: translateY(35vh) scale(0.66);
+      opacity: 0.52;
+      filter: blur(0.6px);
+    }
+
+    .album-track {
+      position: relative;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+    }
+
+    /* Individual Album Card in the Strip */
+    .album-card {
+      position: absolute;
+      width: 280px;
+      height: 356px;
+      left: -140px;
+      top: -178px;
+      background: var(--card-bg);
+      border-radius: 6px;
+      padding: 16px 16px 18px 16px;
+      box-shadow:
+        0 20px 42px -12px var(--shadow-ambient),
+        0 4px 12px -2px rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(182, 149, 102, 0.28);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      will-change: transform, opacity;
+      transition: box-shadow 0.35s ease, background-color 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 640px) {
+      .album-card {
+        width: 232px;
+        height: 304px;
+        left: -116px;
+        top: -152px;
+        padding: 13px 13px 15px 13px;
+      }
+    }
+
+    /* Inner decorative hairline inside card */
+    .album-card::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(182, 149, 102, 0.18);
+      border-radius: 3px;
+      pointer-events: none;
+      transition: border-color 0.35s ease;
+    }
+
+    .album-card:hover::before,
+    .album-card.is-center::before {
+      border-color: rgba(182, 149, 102, 0.52);
+    }
+
+    .album-card:hover {
+      box-shadow:
+        0 28px 54px -12px rgba(182, 149, 102, 0.28),
+        0 8px 20px -4px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1.5px rgba(182, 149, 102, 0.55);
+    }
+
+    /* When this specific card is extracted upward into the center frame */
+    .album-card.extracted-slot .card-inner-content {
+      opacity: 0.14;
+      transform: scale(0.92);
+      filter: grayscale(0.8);
+    }
+    .album-card.extracted-slot::after {
+      content: '正在上方展映';
+      position: absolute;
+      inset: 18px;
+      border: 1.5px dashed rgba(182, 149, 102, 0.65);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      color: var(--gold-accent);
+      font-weight: 500;
+      background: rgba(182, 149, 102, 0.05);
+    }
+
+    .card-inner-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    /* Photo Corner Mounts (复古相角装饰) */
+    .photo-viewport {
+      position: relative;
+      width: 100%;
+      height: 256px;
+      overflow: hidden;
+      background: #E5E0D5;
+      border-radius: 2px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.12);
+    }
+    @media (max-width: 640px) {
+      .photo-viewport {
+        height: 212px;
+      }
+    }
+
+    .photo-viewport img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .album-card:hover .photo-viewport img {
+      transform: scale(1.06);
+    }
+
+    /* Diagonal shimmer sheen on photo */
+    .photo-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(125deg, transparent 30%, rgba(255, 255, 255, 0.32) 48%, transparent 66%);
+      transform: translateX(-120%);
+      transition: transform 0.75s ease;
+      pointer-events: none;
+    }
+    .album-card:hover .photo-shimmer,
+    .album-card.is-center .photo-shimmer {
+      transform: translateX(120%);
+    }
+
+    /* Vintage Gold Corner Brackets */
+    .corner-mount {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--gold-accent);
+      border-style: solid;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0.78;
+      transition: all 0.3s ease;
+    }
+    .album-card:hover .corner-mount,
+    .album-card.is-center .corner-mount {
+      width: 18px;
+      height: 18px;
+      opacity: 1;
+    }
+    .corner-tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
+    .corner-tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+    /* Interactive "Click me" floating seal badge */
+    .invite-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(38, 32, 28, 0.76);
+      backdrop-filter: blur(6px);
+      color: #F7EFE2;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 182, 132, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(6px) scale(0.92);
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 5;
+    }
+    .album-card:hover .invite-badge,
+    .album-card.is-center .invite-badge {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    @keyframes gentlePulseRing {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.22); opacity: 0.4; }
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #E6C387;
+      animation: gentlePulseRing 1.8s infinite ease-in-out;
+    }
+
+    /* ============================================================
+       EXTRACTED SINGLE PHOTO STAGE (精致相框单独查看层)
+       ============================================================ */
+    .single-stage-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      perspective: 1600px;
+      transition: opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+      touch-action: none;
+    }
+
+    .single-stage-overlay.active {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    /* Soft backdrop vignette when single photo is extracted */
+    .single-backdrop-veil {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 42%, rgba(246, 243, 236, 0.55) 0%, rgba(235, 229, 218, 0.86) 100%);
+      backdrop-filter: blur(3px);
+      z-index: -1;
+      transition: opacity 0.5s ease;
+    }
+    body.dark-theme .single-backdrop-veil {
+      background: radial-gradient(circle at 50% 42%, rgba(24, 23, 27, 0.65) 0%, rgba(16, 15, 18, 0.9) 100%);
+    }
+
+    /* The Exquisite Multi-Layer Gallery Frame */
+    .exquisite-frame-wrapper {
+      position: relative;
+      transform-style: preserve-3d;
+      transform: translateY(210px) scale(0.52) rotateX(14deg);
+      transition: transform 0.72s cubic-bezier(0.19, 1, 0.22, 1),
+                  opacity 0.52s ease;
+      will-change: transform, opacity;
+      max-width: 92vw;
+      margin-bottom: 6vh;
+      cursor: grab;
+    }
+    .exquisite-frame-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .single-stage-overlay.active .exquisite-frame-wrapper {
+      transform: translateY(-18px) scale(1) rotateX(0deg);
+    }
+
+    /* When dragging or animating transitions in single view */
+    .exquisite-frame-wrapper.no-transition {
+      transition: none !important;
+    }
+
+    /* Distinct Single-View Horizontal Switch Animations (3D Gallery Flip & Swing) */
+    @keyframes singleSlideOutLeft {
+      0% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg); opacity: 1; }
+      100% { transform: translateY(-18px) translateX(-52%) translateZ(-180px) rotateY(-34deg) rotateZ(-2deg); opacity: 0; }
+    }
+    @keyframes singleSlideInRight {
+      0% { transform: translateY(-18px) translateX(52%) translateZ(-180px) rotateY(34deg) rotateZ(2deg); opacity: 0; }
+      100% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+    }
+    @keyframes singleSlideOutRight {
+      0% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg); opacity: 1; }
+      100% { transform: translateY(-18px) translateX(52%) translateZ(-180px) rotateY(34deg) rotateZ(2deg); opacity: 0; }
+    }
+    @keyframes singleSlideInLeft {
+      0% { transform: translateY(-18px) translateX(-52%) translateZ(-180px) rotateY(-34deg) rotateZ(-2deg); opacity: 0; }
+      100% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+    }
+
+    .exquisite-frame-wrapper.anim-out-left {
+      animation: singleSlideOutLeft 0.34s cubic-bezier(0.4, 0, 0.8, 0.6) forwards;
+    }
+    .exquisite-frame-wrapper.anim-in-right {
+      animation: singleSlideInRight 0.46s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    .exquisite-frame-wrapper.anim-out-right {
+      animation: singleSlideOutRight 0.34s cubic-bezier(0.4, 0, 0.8, 0.6) forwards;
+    }
+    .exquisite-frame-wrapper.anim-in-left {
+      animation: singleSlideInLeft 0.46s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+
+    /* Outer Carved Wood & Champagne Gold Molding */
+    .museum-outer-frame {
+      position: relative;
+      background: linear-gradient(145deg, #43372E 0%, #29211B 50%, #3B3028 100%);
+      padding: 14px;
+      border-radius: 8px;
+      box-shadow:
+        0 38px 75px -15px rgba(28, 22, 18, 0.42),
+        0 12px 28px -6px rgba(28, 22, 18, 0.24),
+        inset 0 1px 1px rgba(255, 238, 210, 0.35),
+        inset 0 0 0 2px #8B6F47;
+    }
+
+    /* Gold Leaf Inner Fillet around Mat Board */
+    .museum-mat-board {
+      position: relative;
+      background: var(--frame-mat);
+      padding: 26px 28px 20px 28px;
+      border-radius: 3px;
+      border: 2px solid #C6A677;
+      box-shadow:
+        inset 0 0 24px rgba(139, 111, 71, 0.12),
+        0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (max-width: 640px) {
+      .museum-outer-frame {
+        padding: 10px;
+      }
+      .museum-mat-board {
+        padding: 16px 16px 14px 16px;
+      }
+    }
+
+    /* Recessed Bevel Cut for the Artwork */
+    .museum-image-bevel {
+      position: relative;
+      width: min(560px, 78vw);
+      height: min(390px, 52vh);
+      padding: 5px;
+      background: linear-gradient(135deg, #D5BC94 0%, #9E7F53 50%, #E7D4B5 100%);
+      box-shadow:
+        inset 0 3px 8px rgba(0, 0, 0, 0.28),
+        0 1px 2px rgba(255, 255, 255, 0.8);
+      overflow: hidden;
+    }
+
+    .museum-image-bevel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #E8E3D9;
+      pointer-events: none;
+    }
+
+    /* Ornate Filigree Corner Flourishes on the Frame */
+    .frame-filigree {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      z-index: 5;
+      color: #D6B785;
+      opacity: 0.92;
+    }
+    .filigree-tl { top: 6px; left: 6px; }
+    .filigree-tr { top: 6px; right: 6px; transform: scaleX(-1); }
+    .filigree-bl { bottom: 6px; left: 6px; transform: scaleY(-1); }
+    .filigree-br { bottom: 6px; right: 6px; transform: scale(-1, -1); }
+
+    /* Brass Museum Nameplate Plaque */
+    .museum-plaque {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: linear-gradient(90deg, rgba(198, 166, 119, 0.10) 0%, rgba(198, 166, 119, 0.22) 50%, rgba(198, 166, 119, 0.10) 100%);
+      border-top: 1px solid rgba(182, 149, 102, 0.42);
+      border-bottom: 1px solid rgba(182, 149, 102, 0.42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Vinyl Record Spinning Animation */
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .vinyl-disc {
+      animation: spinVinyl 6s linear infinite;
+      animation-play-state: paused;
+    }
+    .vinyl-disc.playing {
+      animation-play-state: running;
+    }
+
+    /* Soundwave Equalizer Bars */
+    @keyframes eqBar1 { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+    @keyframes eqBar2 { 0%, 100% { height: 13px; } 40% { height: 4px; } 80% { height: 15px; } }
+    @keyframes eqBar3 { 0%, 100% { height: 6px; } 60% { height: 16px; } }
+    .eq-bar {
+      width: 2.5px;
+      background: var(--gold-accent);
+      border-radius: 2px;
+      height: 4px;
+      transition: height 0.2s ease;
+    }
+    .playing .eq-bar-1 { animation: eqBar1 0.8s infinite ease-in-out; }
+    .playing .eq-bar-2 { animation: eqBar2 0.7s infinite ease-in-out; }
+    .playing .eq-bar-3 { animation: eqBar3 0.9s infinite ease-in-out; }
+    .playing .eq-bar-4 { animation: eqBar1 0.65s infinite ease-in-out 0.2s; }
+
+    /* Downward Swipe Hint Bounce */
+    @keyframes swipeDownHint {
+      0%, 100% { transform: translateY(0); opacity: 0.78; }
+      50% { transform: translateY(5px); opacity: 1; }
+    }
+    .swipe-down-pill {
+      animation: swipeDownHint 2.2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background & Subtle Dust Canvas -->
+  <div class="gallery-backdrop"></div>
+  <canvas id="ambientCanvas" class="fixed inset-0 pointer-events-none z-[1]"></canvas>
+  <div class="gallery-wainscot"></div>
+
+  <!-- Background Audio: Merry Christmas Mr. Lawrence - 坂本龍一 -->
+  <audio id="bgmAudio" src="./music/bgm.mp3" loop preload="auto"></audio>
+
+  <!-- ============================================================
+       TOP NAVIGATION & MUSIC CONTROLLER BAR
+       ============================================================ -->
+  <header class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex items-center justify-between gap-3 pointer-events-none">
+    <!-- Left Brand / Title: 豆豆 + Cute Animated Puppy -->
+    <div class="flex items-center gap-2.5 pointer-events-auto">
+      <!-- Cute Animated Puppy SVG -->
+      <div class="w-11 h-11 rounded-full border border-[#B69566]/45 flex items-center justify-center bg-[#FCFBF9]/90 backdrop-blur-md shadow-sm overflow-visible relative">
+        <svg class="puppy-avatar w-9 h-9" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Wagging Tail -->
+          <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
+          <!-- Puppy Body -->
+          <ellipse cx="34" cy="45" rx="14" ry="10" fill="#F3DEC3" stroke="#8C6239" stroke-width="2"/>
+          <!-- Cute Collar & Golden Bell -->
+          <path d="M23 38C28 41 36 41 41 38" stroke="#E05A47" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="32" cy="41" r="2.8" fill="#F4C542" stroke="#8C6239" stroke-width="1.2"/>
+          <!-- Left Floppy Ear -->
+          <g class="puppy-ear-l">
+            <ellipse cx="17" cy="24" rx="5.5" ry="10.5" transform="rotate(18 17 24)" fill="#C89B6E" stroke="#8C6239" stroke-width="2"/>
+          </g>
+          <!-- Right Floppy Ear -->
+          <g class="puppy-ear-r">
+            <ellipse cx="47" cy="24" rx="5.5" ry="10.5" transform="rotate(-18 47 24)" fill="#C89B6E" stroke="#8C6239" stroke-width="2"/>
+          </g>
+          <!-- Puppy Head -->
+          <circle cx="32" cy="25" r="14" fill="#FFF5E6" stroke="#8C6239" stroke-width="2"/>
+          <!-- Forehead Patch -->
+          <path d="M26 12C29 16 35 16 38 12" fill="#E3B98B"/>
+          <!-- Blinking Eyes -->
+          <g class="puppy-eyes">
+            <circle cx="26.5" cy="24.5" r="2.3" fill="#2A211B"/>
+            <circle cx="25.8" cy="23.8" r="0.8" fill="#FFFFFF"/>
+            <circle cx="37.5" cy="24.5" r="2.3" fill="#2A211B"/>
+            <circle cx="36.8" cy="23.8" r="0.8" fill="#FFFFFF"/>
+          </g>
+          <!-- Rosy Cheeks -->
+          <ellipse cx="22.5" cy="27.8" rx="2.6" ry="1.5" fill="#F4978E" opacity="0.65"/>
+          <ellipse cx="41.5" cy="27.8" rx="2.6" ry="1.5" fill="#F4978E" opacity="0.65"/>
+          <!-- Cute Nose & Happy Smile + Pink Tongue -->
+          <ellipse cx="32" cy="27.2" rx="2.5" ry="1.8" fill="#4A3525"/>
+          <path d="M30 31.2C30 33.4 34 33.4 34 31.2" fill="#F27A7D" stroke="#8C6239" stroke-width="1.3"/>
+          <path d="M28.5 29.8Q32 32.2 35.5 29.8" stroke="#8C6239" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <!-- Front Paws -->
+          <circle cx="25" cy="53" r="3.5" fill="#FFF5E6" stroke="#8C6239" stroke-width="1.8"/>
+          <circle cx="39" cy="53" r="3.5" fill="#FFF5E6" stroke="#8C6239" stroke-width="1.8"/>
+          <!-- Floating Little Heart -->
+          <path class="puppy-heart" d="M51 12C51 10.5 49.5 9.5 48.3 10.6C47.1 9.5 45.6 10.5 45.6 12C45.6 13.8 48.3 15.6 48.3 15.6C48.3 15.6 51 13.8 51 12Z" fill="#E86F68"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <h1 class="font-serif-display text-xl sm:text-2xl font-bold tracking-wider leading-tight">豆豆</h1>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-[#B69566]/15 text-[#B69566] font-medium">开开心心 🐾</span>
+        </div>
+        <p id="modeStatusText" class="text-[11px] tracking-widest uppercase text-[#7D746B]">DOUDOU GALLERY · 全部照片展示中</p>
+      </div>
+    </div>
+
+    <!-- Right Action Controls -->
+    <div class="flex items-center gap-2 sm:gap-2.5 pointer-events-auto flex-wrap justify-end">
+      <!-- Replay Opening Sweep Button -->
+      <button id="replaySweepBtn" type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border border-[#B69566]/40 bg-[#FCFBF9]/85 text-[#2A2522] hover:border-[#B69566] hover:bg-[#B69566]/10 transition flex items-center gap-1.5 backdrop-blur-md shadow-sm" title="重播2秒入场由快到慢掠过动画">
+        <span>✨</span>
+        <span class="hidden sm:inline">重播入场掠过</span>
+      </button>
+
+      <!-- Theme Toggle (Warm Ivory / Dark Gallery) -->
+      <button id="themeToggleBtn" type="button" class="w-8 h-8 rounded-full border border-[#B69566]/40 bg-[#FCFBF9]/85 text-[#2A2522] hover:border-[#B69566] transition flex items-center justify-center backdrop-blur-md shadow-sm" title="切换浅色画廊 / 夜色胶片主题">
+        <span id="themeIcon">🌙</span>
+      </button>
+
+      <!-- Vinyl Music Player Pill -->
+      <button id="musicToggleBtn" type="button" class="pl-1.5 pr-3 py-1 rounded-full border border-[#B69566]/50 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] transition flex items-center gap-2 backdrop-blur-md shadow-sm group" title="点击播放/暂停《Merry Christmas Mr. Lawrence - 坂本龍一》">
+        <!-- Spinning Vinyl Disc -->
+        <div id="vinylDisc" class="vinyl-disc w-7 h-7 rounded-full bg-zinc-900 border-2 border-[#B69566] flex items-center justify-center relative shadow-inner">
+          <div class="w-2.5 h-2.5 rounded-full bg-[#D9B882] border border-zinc-900"></div>
+        </div>
+        <div class="text-left max-w-[115px] sm:max-w-[155px] overflow-hidden">
+          <div class="text-[11px] font-medium truncate leading-tight">Merry Christmas Mr. Lawrence</div>
+          <div id="musicStateLabel" class="text-[9px] text-[#7D746B] truncate leading-tight">坂本龍一 · 点击播放</div>
+        </div>
+        <div id="eqContainer" class="flex items-end gap-[2px] h-4 ml-0.5">
+          <span class="eq-bar eq-bar-1"></span>
+          <span class="eq-bar eq-bar-2"></span>
+          <span class="eq-bar eq-bar-3"></span>
+          <span class="eq-bar eq-bar-4"></span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN ALBUM STRIP STAGE (全部展示模式：全部照片清晰陈列 + 横向掠过)
+       ============================================================ -->
+  <main id="albumStageWrapper" class="album-stage-wrapper">
+    <div id="albumTrack" class="album-track">
+      <!-- All photo cards injected dynamically by JS -->
+    </div>
+  </main>
+
+  <!-- ============================================================
+       EXTRACTED SINGLE PHOTO VIEW (单独展示模式：精致相框 + 专属左右切换 + 下滑归位)
+       ============================================================ -->
+  <section id="singleStageOverlay" class="single-stage-overlay" aria-hidden="true">
+    <div id="singleBackdropVeil" class="single-backdrop-veil"></div>
+
+    <!-- Top Gesture & Mode Hint in Single View -->
+    <div class="mb-3 px-4 py-1 rounded-full bg-[#FCFBF9]/85 border border-[#B69566]/35 text-[11px] text-[#7D746B] tracking-wider flex items-center gap-3 shadow-sm backdrop-blur-md">
+      <span>↔ 左右滑动：切换照片</span>
+      <span class="text-[#B69566]">|</span>
+      <span>↓ 向下滑动：放回相册中心</span>
+    </div>
+
+    <!-- Main Center Framed Artwork + Left/Right Gallery Buttons -->
+    <div class="relative flex items-center justify-center w-full px-4">
+      <!-- Left Arrow (Single View Exclusive Transition) -->
+      <button id="singlePrevBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/85 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md mr-5 z-20" title="上一张 (左滑)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+
+      <!-- The Exquisite Framed Artwork -->
+      <div id="exquisiteFrameWrapper" class="exquisite-frame-wrapper">
+        <div class="museum-outer-frame">
+          <!-- 4 Corner Filigree Ornaments -->
+          <svg class="frame-filigree filigree-tl" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M2 30V8C2 4.686 4.686 2 8 2h22M6 22V10c0-2.2 1.8-4 4-4h12"/>
+            <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          </svg>
+          <svg class="frame-filigree filigree-tr" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M2 30V8C2 4.686 4.686 2 8 2h22M6 22V10c0-2.2 1.8-4 4-4h12"/>
+            <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          </svg>
+          <svg class="frame-filigree filigree-bl" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M2 30V8C2 4.686 4.686 2 8 2h22M6 22V10c0-2.2 1.8-4 4-4h12"/>
+            <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          </svg>
+          <svg class="frame-filigree filigree-br" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M2 30V8C2 4.686 4.686 2 8 2h22M6 22V10c0-2.2 1.8-4 4-4h12"/>
+            <circle cx="10" cy="10" r="2" fill="currentColor"/>
+          </svg>
+
+          <!-- Inner Acid-Free Museum Mat Board -->
+          <div class="museum-mat-board">
+            <div class="museum-image-bevel">
+              <img id="singleFramedImg" src="./photos/1.jpg" alt="开开心心" />
+            </div>
+
+            <!-- Uniform Bottom Caption: 开开心心 -->
+            <div class="museum-plaque">
+              <span class="text-[#B69566] text-xs">✦</span>
+              <h2 id="singleFramedTitle" class="font-serif-display text-lg sm:text-xl font-semibold tracking-[0.25em] text-[#2A2522] dark:text-[#F2ECE1]">开开心心</h2>
+              <span class="text-[#B69566] text-xs">✦</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Arrow (Single View Exclusive Transition) -->
+      <button id="singleNextBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/85 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md ml-5 z-20" title="下一张 (右滑)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Downward Swipe Return Button / Pill -->
+    <button id="exitSingleBtn" type="button" class="swipe-down-pill px-5 py-2 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-widest flex items-center gap-2 shadow-lg border border-[#B69566]/50 hover:bg-[#B69566] hover:text-white transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+      <span>下滑画面 或 点击此处放回相册中心</span>
+    </button>
+  </section>
+
+  <!-- ============================================================
+       BOTTOM NAVIGATION BAR & INTERACTION STATUS (全部展示底部控制栏)
+       ============================================================ -->
+  <footer id="stripFooterBar" class="fixed bottom-5 left-0 right-0 z-20 px-6 flex flex-col items-center gap-2.5 pointer-events-none transition-opacity duration-500">
+    <!-- Toast / Interactive Status Feedback -->
+    <div id="statusToast" class="px-4 py-1 rounded-full bg-[#2A2522]/80 text-[#F7EFE2] text-xs tracking-wider backdrop-blur-md shadow-sm transition-all duration-300 opacity-90">
+      ✨ 正在为您掠过相册画卷 · 2秒由快到慢慢慢停下
+    </div>
+
+    <!-- Strip Quick Controls & Dot Indicators (Shows all photos) -->
+    <div class="flex items-center gap-3 px-4 py-2 rounded-full bg-[#FCFBF9]/85 border border-[#B69566]/35 shadow-sm backdrop-blur-md pointer-events-auto">
+      <button id="stripPrevBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向左滑动">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+
+      <div id="dotIndicators" class="flex items-center gap-1.5">
+        <!-- Dots for ALL photos injected by JS -->
+      </div>
+
+      <button id="stripNextBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向右滑动">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <span class="text-[#B69566]/40 text-xs">|</span>
+
+      <button id="extractCenterBtn" type="button" class="text-xs font-medium text-[#B69566] hover:underline tracking-wider px-1">
+        抽起当前中心照片 ↑
+      </button>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       OPENING MUSIC & ALBUM ENTRANCE VEIL (首屏音乐解锁与入场画幕)
+       ============================================================ -->
+  <div id="welcomeVeil" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F6F3EC]/92 backdrop-blur-md transition-opacity duration-700 px-6 text-center cursor-pointer">
+    <div class="max-w-md w-full p-8 rounded-2xl border border-[#B69566]/40 bg-[#FCFBF9]/95 shadow-2xl relative overflow-hidden">
+      <!-- Animated Cute Puppy on Welcome Card -->
+      <div class="w-20 h-20 mx-auto mb-3 rounded-full border border-[#B69566]/50 flex items-center justify-center bg-[#B69566]/10 shadow-inner">
+        <svg class="puppy-avatar w-16 h-16" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
+          <ellipse cx="34" cy="45" rx="14" ry="10" fill="#F3DEC3" stroke="#8C6239" stroke-width="2"/>
+          <path d="M23 38C28 41 36 41 41 38" stroke="#E05A47" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="32" cy="41" r="2.8" fill="#F4C542" stroke="#8C6239" stroke-width="1.2"/>
+          <g class="puppy-ear-l">
+            <ellipse cx="17" cy="24" rx="5.5" ry="10.5" transform="rotate(18 17 24)" fill="#C89B6E" stroke="#8C6239" stroke-width="2"/>
+          </g>
+          <g class="puppy-ear-r">
+            <ellipse cx="47" cy="24" rx="5.5" ry="10.5" transform="rotate(-18 47 24)" fill="#C89B6E" stroke="#8C6239" stroke-width="2"/>
+          </g>
+          <circle cx="32" cy="25" r="14" fill="#FFF5E6" stroke="#8C6239" stroke-width="2"/>
+          <path d="M26 12C29 16 35 16 38 12" fill="#E3B98B"/>
+          <g class="puppy-eyes">
+            <circle cx="26.5" cy="24.5" r="2.3" fill="#2A211B"/>
+            <circle cx="25.8" cy="23.8" r="0.8" fill="#FFFFFF"/>
+            <circle cx="37.5" cy="24.5" r="2.3" fill="#2A211B"/>
+            <circle cx="36.8" cy="23.8" r="0.8" fill="#FFFFFF"/>
+          </g>
+          <ellipse cx="22.5" cy="27.8" rx="2.6" ry="1.5" fill="#F4978E" opacity="0.65"/>
+          <ellipse cx="41.5" cy="27.8" rx="2.6" ry="1.5" fill="#F4978E" opacity="0.65"/>
+          <ellipse cx="32" cy="27.2" rx="2.5" ry="1.8" fill="#4A3525"/>
+          <path d="M30 31.2C30 33.4 34 33.4 34 31.2" fill="#F27A7D" stroke="#8C6239" stroke-width="1.3"/>
+          <path d="M28.5 29.8Q32 32.2 35.5 29.8" stroke="#8C6239" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <circle cx="25" cy="53" r="3.5" fill="#FFF5E6" stroke="#8C6239" stroke-width="1.8"/>
+          <circle cx="39" cy="53" r="3.5" fill="#FFF5E6" stroke="#8C6239" stroke-width="1.8"/>
+          <path class="puppy-heart" d="M51 12C51 10.5 49.5 9.5 48.3 10.6C47.1 9.5 45.6 10.5 45.6 12C45.6 13.8 48.3 15.6 48.3 15.6C48.3 15.6 51 13.8 51 12Z" fill="#E86F68"/>
+        </svg>
+      </div>
+      <p class="text-[11px] tracking-[0.28em] uppercase text-[#B69566] font-medium">Merry Christmas Mr. Lawrence</p>
+      <h2 class="font-serif-display text-3xl sm:text-4xl font-bold text-[#2A2522] mt-1 mb-2">豆豆</h2>
+      <p class="text-xs text-[#7D746B] leading-relaxed mb-6">
+        每一刻都开开心心 🐾<br/>
+        全部照片已整齐就绪，入场动画持续2秒后轻缓停下。
+      </p>
+      <button id="enterGalleryBtn" type="button" class="w-full py-3 px-6 rounded-full bg-[#2A2522] text-[#F7EFE2] hover:bg-[#B69566] transition font-medium text-xs tracking-[0.2em] uppercase shadow-md">
+        ✦ 点击开启相册 ✦
+      </button>
+      <p class="text-[10px] text-[#7D746B] mt-3">提示：入场2秒掠过途中随时点击画面，也可温柔提前停下</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CORE INTERACTION & PHYSICS ENGINE SCRIPT
+       ============================================================ -->
+  <script>
+    /******************************************************************
+     * 【用户相册配置区 USER_CONFIG】
+     * 把所有照片放进同级目录下的 `photos/` 文件夹中即可！
+     ******************************************************************/
+    const USER_CONFIG = {
+      photoFolder: './photos/',
+      musicFile: './music/bgm.mp3',
+      // 全部照片列表：所有照片均会加载并展示在画卷中
+      photos: [
+        { file: '1.jpg', caption: '开开心心', fallback: './photos/1.jpg' },
+        { file: '2.jpg', caption: '开开心心', fallback: './photos/2.jpg' },
+        { file: '3.jpg', caption: '开开心心', fallback: './photos/3.jpg' },
+        { file: '4.jpg', caption: '开开心心', fallback: './photos/4.jpg' },
+        { file: '5.jpg', caption: '开开心心', fallback: './photos/5.jpg' },
+        { file: '6.jpg', caption: '开开心心', fallback: './photos/6.jpg' },
+        { file: '7.jpg', caption: '开开心心', fallback: './photos/7.jpg' },
+        { file: '8.jpg', caption: '开开心心', fallback: './photos/8.jpg' }
+      ]
+    };
+
+    // State Management
+    const state = {
+      photos: USER_CONFIG.photos.map((p, idx) => ({
+        ...p,
+        id: idx,
+        resolvedSrc: p.fallback
+      })),
+      viewMode: 'strip',        // 'strip' (全部展示) | 'single' (单独相框展示)
+      activeIndex: 0,           // Currently centered or extracted photo index
+      scrollX: 0,               // Current continuous horizontal offset in strip (in card units)
+      targetScrollX: 0,         // Target card index in strip
+      velocityX: 0,             // Momentum velocity in strip
+      isDraggingStrip: false,
+      dragMoved: false,
+      pointerStartX: 0,
+      pointerStartY: 0,
+      lastPointerX: 0,
+      lastPointerTime: 0,
+
+      // Opening fast-to-slow sweep state (严格设定为2.0秒)
+      introSweepActive: false,
+      introBraking: false,      // Smooth deceleration when user clicks during intro sweep
+      introStartTime: 0,
+      introDuration: 2000,      // 2.0 秒入场由快到慢动画
+      introStartScroll: 0,
+      introEndScroll: 0,
+
+      // Single Framed View gesture state
+      isDraggingSingle: false,
+      singleDragDX: 0,
+      singleDragDY: 0,
+      isTransitioningSingle: false,
+
+      // Audio state
+      isPlayingMusic: false
+    };
+
+    // DOM References
+    const albumStageWrapper = document.getElementById('albumStageWrapper');
+    const albumTrack = document.getElementById('albumTrack');
+    const singleStageOverlay = document.getElementById('singleStageOverlay');
+    const exquisiteFrameWrapper = document.getElementById('exquisiteFrameWrapper');
+    const singleFramedImg = document.getElementById('singleFramedImg');
+    const singleFramedTitle = document.getElementById('singleFramedTitle');
+    const statusToast = document.getElementById('statusToast');
+    const modeStatusText = document.getElementById('modeStatusText');
+    const dotIndicators = document.getElementById('dotIndicators');
+    const stripFooterBar = document.getElementById('stripFooterBar');
+
+    const bgmAudio = document.getElementById('bgmAudio');
+    const musicToggleBtn = document.getElementById('musicToggleBtn');
+    const vinylDisc = document.getElementById('vinylDisc');
+    const eqContainer = document.getElementById('eqContainer');
+    const musicStateLabel = document.getElementById('musicStateLabel');
+    const welcomeVeil = document.getElementById('welcomeVeil');
+    const enterGalleryBtn = document.getElementById('enterGalleryBtn');
+
+    let cardElements = [];
+
+    /******************************************************************
+     * 1. EXTERNAL `./photos/` PROBING (支持直接读取同级 photos 文件夹)
+     ******************************************************************/
+    function probeExternalPhotos() {
+      state.photos.forEach((item, idx) => {
+        if (!item.file || item.file.startsWith('data:') || item.file.startsWith('blob:')) return;
+        const candidateUrl = USER_CONFIG.photoFolder + item.file;
+        const probeImg = new Image();
+        probeImg.onload = () => {
+          state.photos[idx].resolvedSrc = candidateUrl;
+          if (cardElements[idx]) {
+            const imgEl = cardElements[idx].querySelector('img');
+            if (imgEl) imgEl.src = candidateUrl;
+          }
+          if (state.activeIndex === idx && singleFramedImg) {
+            singleFramedImg.src = candidateUrl;
+          }
+        };
+        probeImg.onerror = () => {};
+        probeImg.src = candidateUrl;
+      });
+    }
+
+    /******************************************************************
+     * 2. RENDER ALBUM CARDS & DOT INDICATORS (展示全部照片，底部统一开开心心)
+     ******************************************************************/
+    function buildAlbumDOM() {
+      albumTrack.innerHTML = '';
+      dotIndicators.innerHTML = '';
+      cardElements = [];
+
+      state.photos.forEach((photo, index) => {
+        const card = document.createElement('article');
+        card.className = 'album-card';
+        card.dataset.index = String(index);
+
+        card.innerHTML = `
+          <div class="card-inner-content">
+            <!-- Main Photo with 4 Vintage Corner Mounts & Shimmer -->
+            <div class="photo-viewport">
+              <span class="corner-mount corner-tl"></span>
+              <span class="corner-mount corner-tr"></span>
+              <span class="corner-mount corner-bl"></span>
+              <span class="corner-mount corner-br"></span>
+              <img src="${photo.resolvedSrc}" alt="开开心心" draggable="false" />
+              <div class="photo-shimmer"></div>
+              <div class="invite-badge">
+                <span class="pulse-dot"></span>
+                <span>点击查看</span>
+              </div>
+            </div>
+
+            <!-- Uniform Card Footer: 开开心心 -->
+            <div class="pt-2 flex items-center justify-center gap-2">
+              <span class="text-[#B69566] text-xs">✦</span>
+              <h3 class="font-serif-display text-base font-semibold tracking-[0.22em] text-[#2A2522] dark:text-[#F2ECE1]">开开心心</h3>
+              <span class="text-[#B69566] text-xs">✦</span>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleCardClick(index);
+        });
+
+        albumTrack.appendChild(card);
+        cardElements.push(card);
+
+        // Dot indicator for every photo
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/35 hover:bg-[#B69566] w-1.5';
+        dot.title = `第 ${index + 1} 张 · 开开心心`;
+        dot.addEventListener('click', () => {
+          if (state.introSweepActive) {
+            triggerIntroSmoothBrake(index);
+          } else if (state.viewMode === 'strip') {
+            focusCardInStrip(index);
+          } else {
+            switchSinglePhotoTo(index, index > state.activeIndex ? 'next' : 'prev');
+          }
+        });
+        dotIndicators.appendChild(dot);
+      });
+
+      updateDotsUI();
+    }
+
+    function updateDotsUI() {
+      const dots = dotIndicators.children;
+      const centerIdx = Math.round(Math.max(0, Math.min(state.photos.length - 1, state.scrollX)));
+      const highlightIdx = state.viewMode === 'single' ? state.activeIndex : centerIdx;
+
+      for (let i = 0; i < dots.length; i++) {
+        if (i === highlightIdx) {
+          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566] w-5';
+        } else {
+          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/30 hover:bg-[#B69566]/60 w-1.5';
+        }
+      }
+    }
+
+    function showToast(msg) {
+      if (!statusToast) return;
+      statusToast.textContent = msg;
+    }
+
+    /******************************************************************
+     * 3. 2-SECOND FAST-TO-SLOW ALBUM SWEEP & SMOOTH CLICK-TO-BRAKE
+     * (动画时间设置为2秒：速度由快到慢。2秒内展示完就结束，没有则慢慢停下)
+     ******************************************************************/
+    function startOpeningAlbumSweep() {
+      if (state.viewMode === 'single') {
+        exitSingleView(true);
+      }
+
+      const total = state.photos.length;
+      // 全部照片都已展示在画卷中。
+      // 如果总照片数较少 (<= 3张)，2秒足以掠过全部并停在最后一张；
+      // 如果照片较多，2秒内掠过前几张后由快到慢优雅减速停下。
+      const targetStop = total <= 3 ? (total - 1) : Math.min(total - 1, 3);
+
+      state.introStartScroll = 0;
+      state.introEndScroll = targetStop;
+      state.scrollX = 0;
+      state.targetScrollX = targetStop;
+      state.velocityX = 0;
+      state.introSweepActive = true;
+      state.introBraking = false;
+      state.introDuration = 2000; // 严格设定为 2 秒
+      state.introStartTime = performance.now();
+
+      showToast('✨ 正在掠过画卷 · 2秒由快到慢慢慢停下 (点击可随时停驻)');
+    }
+
+    function triggerIntroSmoothBrake(preferredIndex = null) {
+      if (!state.introSweepActive || state.introBraking) return;
+      state.introBraking = true;
+      state.introSweepActive = false;
+
+      const maxIdx = state.photos.length - 1;
+      const landingIdx = preferredIndex !== null
+        ? preferredIndex
+        : Math.max(0, Math.min(maxIdx, Math.round(state.scrollX + 0.35)));
+
+      state.targetScrollX = landingIdx;
+      state.activeIndex = landingIdx;
+      showToast('✦ 已为您轻缓停驻 · 点击照片可抽出装裱查看');
+    }
+
+    function focusCardInStrip(index) {
+      const clamped = Math.max(0, Math.min(state.photos.length - 1, index));
+      state.introSweepActive = false;
+      state.introBraking = false;
+      state.velocityX = 0;
+      state.targetScrollX = clamped;
+      state.activeIndex = clamped;
+      showToast('开开心心 🐾 点击照片可向上抽出查看');
+    }
+
+    /******************************************************************
+     * 4. CLICK CARD -> EXTRACT PHOTO UPWARD WITH EXQUISITE FRAME
+     *    & BOTTOM ALBUM STRIP SLOWLY SINKS DOWN
+     ******************************************************************/
+    function handleCardClick(index) {
+      if (state.dragMoved) return;
+
+      if (state.introSweepActive) {
+        triggerIntroSmoothBrake(index);
+        return;
+      }
+
+      if (state.viewMode === 'single') {
+        if (index !== state.activeIndex) {
+          switchSinglePhotoTo(index, index > state.activeIndex ? 'next' : 'prev');
+        }
+        return;
+      }
+
+      enterSingleView(index);
+    }
+
+    function enterSingleView(index) {
+      const clamped = Math.max(0, Math.min(state.photos.length - 1, index));
+      state.activeIndex = clamped;
+      state.targetScrollX = clamped;
+      state.velocityX = 0;
+      state.viewMode = 'single';
+
+      populateSingleFrameContent(clamped);
+
+      cardElements.forEach((el, idx) => {
+        el.classList.toggle('extracted-slot', idx === clamped);
+      });
+
+      albumStageWrapper.classList.add('sunken');
+      singleStageOverlay.classList.add('active');
+      singleStageOverlay.setAttribute('aria-hidden', 'false');
+      stripFooterBar.style.opacity = '0';
+      stripFooterBar.style.pointerEvents = 'none';
+
+      modeStatusText.textContent = 'DOUDOU GALLERY · 开开心心';
+      updateDotsUI();
+    }
+
+    function populateSingleFrameContent(index) {
+      const item = state.photos[index];
+      if (!item) return;
+      singleFramedImg.src = item.resolvedSrc;
+      singleFramedImg.alt = '开开心心';
+      singleFramedTitle.textContent = '开开心心';
+    }
+
+    /******************************************************************
+     * 5. SWIPE DOWN TO EXIT SINGLE VIEW -> SMOOTH TRANSITION BACK TO
+     *    PREVIOUSLY VIEWED PHOTO AT EXACT CENTER OF STRIP
+     ******************************************************************/
+    function exitSingleView(instant = false) {
+      if (state.viewMode !== 'single') return;
+      state.viewMode = 'strip';
+
+      state.targetScrollX = state.activeIndex;
+      if (instant) {
+        state.scrollX = state.activeIndex;
+      }
+
+      exquisiteFrameWrapper.classList.remove('no-transition', 'anim-out-left', 'anim-in-right', 'anim-out-right', 'anim-in-left');
+      exquisiteFrameWrapper.style.transform = '';
+      exquisiteFrameWrapper.style.opacity = '';
+      albumStageWrapper.style.transform = '';
+      albumStageWrapper.style.opacity = '';
+
+      albumStageWrapper.classList.remove('sunken');
+      singleStageOverlay.classList.remove('active');
+      singleStageOverlay.setAttribute('aria-hidden', 'true');
+
+      cardElements.forEach((el) => el.classList.remove('extracted-slot'));
+
+      stripFooterBar.style.opacity = '1';
+      stripFooterBar.style.pointerEvents = 'none';
+
+      modeStatusText.textContent = 'DOUDOU GALLERY · 全部照片展示中';
+      showToast('🐾 已回到中心位置 · 开开心心');
+      updateDotsUI();
+    }
+
+    /******************************************************************
+     * 6. DISTINCT HORIZONTAL SWIPE IN SINGLE VIEW (3D 画框摆动翻页动画)
+     ******************************************************************/
+    function switchSinglePhotoTo(newIndex, direction = 'next') {
+      if (state.isTransitioningSingle || state.photos.length <= 1) return;
+      const total = state.photos.length;
+      const wrappedIndex = ((newIndex % total) + total) % total;
+      if (wrappedIndex === state.activeIndex) return;
+
+      state.isTransitioningSingle = true;
+      exquisiteFrameWrapper.classList.remove('no-transition', 'anim-out-left', 'anim-in-right', 'anim-out-right', 'anim-in-left');
+      exquisiteFrameWrapper.style.transform = '';
+
+      const outClass = direction === 'next' ? 'anim-out-left' : 'anim-out-right';
+      const inClass = direction === 'next' ? 'anim-in-right' : 'anim-in-left';
+
+      exquisiteFrameWrapper.classList.add(outClass);
+
+      state.activeIndex = wrappedIndex;
+      state.targetScrollX = wrappedIndex;
+
+      cardElements.forEach((el, idx) => {
+        el.classList.toggle('extracted-slot', idx === wrappedIndex);
+      });
+      updateDotsUI();
+
+      setTimeout(() => {
+        populateSingleFrameContent(wrappedIndex);
+        exquisiteFrameWrapper.classList.remove(outClass);
+        exquisiteFrameWrapper.classList.add(inClass);
+
+        setTimeout(() => {
+          exquisiteFrameWrapper.classList.remove(inClass);
+          state.isTransitioningSingle = false;
+        }, 460);
+      }, 310);
+    }
+
+    /******************************************************************
+     * 7. GESTURE HANDLERS
+     ******************************************************************/
+    function bindStageGestures() {
+      albumStageWrapper.addEventListener('pointerdown', (e) => {
+        if (state.viewMode !== 'strip') return;
+
+        if (state.introSweepActive) {
+          triggerIntroSmoothBrake();
+          state.dragMoved = true;
+          setTimeout(() => { state.dragMoved = false; }, 120);
+          return;
+        }
+
+        state.isDraggingStrip = true;
+        state.dragMoved = false;
+        state.pointerStartX = e.clientX;
+        state.lastPointerX = e.clientX;
+        state.lastPointerTime = performance.now();
+        state.velocityX = 0;
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (state.isDraggingStrip && state.viewMode === 'strip') {
+          const dx = e.clientX - state.lastPointerX;
+          const totalDx = Math.abs(e.clientX - state.pointerStartX);
+          if (totalDx > 7) {
+            state.dragMoved = true;
+          }
+
+          const now = performance.now();
+          const dt = Math.max(8, now - state.lastPointerTime);
+          const cardSpacing = window.innerWidth < 640 ? 205 : 255;
+
+          const deltaCards = -dx / cardSpacing;
+          state.scrollX += deltaCards;
+          state.targetScrollX = state.scrollX;
+          state.velocityX = (deltaCards / dt) * 16.67;
+
+          state.lastPointerX = e.clientX;
+          state.lastPointerTime = now;
+        }
+
+        if (state.isDraggingSingle && state.viewMode === 'single' && !state.isTransitioningSingle) {
+          state.singleDragDX = e.clientX - state.pointerStartX;
+          state.singleDragDY = e.clientY - state.pointerStartY;
+
+          const dx = state.singleDragDX;
+          const dy = state.singleDragDY;
+
+          if (dy > 15 && Math.abs(dy) > Math.abs(dx) * 1.15) {
+            const progress = Math.min(1, dy / 220);
+            const followY = -18 + dy * 0.68;
+            const scale = 1 - progress * 0.32;
+            const rotX = progress * 10;
+            exquisiteFrameWrapper.style.transform = `translateY(${followY}px) scale(${scale}) rotateX(${rotX}deg)`;
+
+            const stripY = 35 * (1 - progress * 0.65);
+            const stripScale = 0.66 + progress * 0.22;
+            albumStageWrapper.style.transform = `translateY(${stripY}vh) scale(${stripScale})`;
+            albumStageWrapper.style.opacity = String(0.52 + progress * 0.35);
+          } else {
+            const tiltY = Math.max(-24, Math.min(24, dx * 0.08));
+            const shiftX = dx * 0.38;
+            const shiftZ = -Math.min(90, Math.abs(dx) * 0.35);
+            exquisiteFrameWrapper.style.transform = `translateY(-18px) translateX(${shiftX}px) translateZ(${shiftZ}px) rotateY(${tiltY}deg)`;
+          }
+        }
+      });
+
+      window.addEventListener('pointerup', () => {
+        if (state.isDraggingStrip) {
+          state.isDraggingStrip = false;
+          const projected = state.scrollX + state.velocityX * 11;
+          const clamped = Math.max(0, Math.min(state.photos.length - 1, Math.round(projected)));
+          state.targetScrollX = clamped;
+          state.activeIndex = clamped;
+          showToast('开开心心 🐾 点击照片可向上抽出装裱查看');
+          setTimeout(() => { state.dragMoved = false; }, 60);
+        }
+
+        if (state.isDraggingSingle) {
+          state.isDraggingSingle = false;
+          const dx = state.singleDragDX;
+          const dy = state.singleDragDY;
+
+          exquisiteFrameWrapper.classList.remove('no-transition');
+
+          if (dy > 65 && Math.abs(dy) > Math.abs(dx)) {
+            exitSingleView(false);
+          } else if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+            albumStageWrapper.style.transform = '';
+            albumStageWrapper.style.opacity = '';
+            if (dx < 0) {
+              switchSinglePhotoTo(state.activeIndex + 1, 'next');
+            } else {
+              switchSinglePhotoTo(state.activeIndex - 1, 'prev');
+            }
+          } else {
+            exquisiteFrameWrapper.style.transform = '';
+            albumStageWrapper.style.transform = '';
+            albumStageWrapper.style.opacity = '';
+          }
+
+          state.singleDragDX = 0;
+          state.singleDragDY = 0;
+        }
+      });
+
+      singleStageOverlay.addEventListener('pointerdown', (e) => {
+        if (state.viewMode !== 'single' || state.isTransitioningSingle) return;
+        if (e.target.closest('button')) return;
+
+        state.isDraggingSingle = true;
+        state.pointerStartX = e.clientX;
+        state.pointerStartY = e.clientY;
+        state.singleDragDX = 0;
+        state.singleDragDY = 0;
+        exquisiteFrameWrapper.classList.add('no-transition');
+      });
+
+      let lastWheelTime = 0;
+      window.addEventListener('wheel', (e) => {
+        const now = performance.now();
+        if (state.viewMode === 'strip') {
+          if (state.introSweepActive) {
+            triggerIntroSmoothBrake();
+            return;
+          }
+          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+          state.targetScrollX = Math.max(0, Math.min(state.photos.length - 1, state.targetScrollX + delta * 0.0045));
+          clearTimeout(window._wheelSnapTimer);
+          window._wheelSnapTimer = setTimeout(() => {
+            state.targetScrollX = Math.round(state.targetScrollX);
+            state.activeIndex = state.targetScrollX;
+          }, 180);
+        } else if (state.viewMode === 'single') {
+          if (now - lastWheelTime < 480) return;
+          if (e.deltaY > 45 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            lastWheelTime = now;
+            exitSingleView(false);
+          } else if (Math.abs(e.deltaX) > 30) {
+            lastWheelTime = now;
+            if (e.deltaX > 0) switchSinglePhotoTo(state.activeIndex + 1, 'next');
+            else switchSinglePhotoTo(state.activeIndex - 1, 'prev');
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('keydown', (e) => {
+        if (state.viewMode === 'single') {
+          if (e.key === 'ArrowRight') switchSinglePhotoTo(state.activeIndex + 1, 'next');
+          else if (e.key === 'ArrowLeft') switchSinglePhotoTo(state.activeIndex - 1, 'prev');
+          else if (e.key === 'ArrowDown' || e.key === 'Escape') exitSingleView(false);
+        } else {
+          if (e.key === 'ArrowRight') focusCardInStrip(Math.round(state.targetScrollX) + 1);
+          else if (e.key === 'ArrowLeft') focusCardInStrip(Math.round(state.targetScrollX) - 1);
+          else if (e.key === 'ArrowUp' || e.key === 'Enter') enterSingleView(Math.round(state.scrollX));
+        }
+      });
+    }
+
+    /******************************************************************
+     * 8. MAIN 60FPS ANIMATION LOOP (3D Album Physics + Visible Clear Spread)
+     ******************************************************************/
+    function animateLoop(now) {
+      if (state.introSweepActive) {
+        const elapsed = now - state.introStartTime;
+        const t = Math.min(1, elapsed / state.introDuration);
+        // Smooth Cubic Ease-Out over 2000ms: starts fast, gradually slows down, velocity reaches 0 at 2.0s
+        const easeOut = 1 - Math.pow(1 - t, 3.0);
+        const prevScroll = state.scrollX;
+        state.scrollX = state.introStartScroll + (state.introEndScroll - state.introStartScroll) * easeOut;
+        state.velocityX = state.scrollX - prevScroll;
+
+        if (t >= 1) {
+          // 2秒时间到达：自然减速到零停下，无论是否展示完，平滑停留在当前照片
+          state.introSweepActive = false;
+          const finalIdx = Math.round(state.scrollX);
+          state.scrollX = finalIdx;
+          state.targetScrollX = finalIdx;
+          state.activeIndex = finalIdx;
+          state.velocityX = 0;
+          showToast('🐾 左右滑动可浏览全部照片 · 点击照片可抽出装裱查看');
+        }
+      } else if (!state.isDraggingStrip) {
+        const diff = state.targetScrollX - state.scrollX;
+        const springFactor = state.introBraking ? 0.085 : 0.11;
+        const step = diff * springFactor;
+        state.velocityX = step;
+        state.scrollX += step;
+        if (Math.abs(diff) < 0.002) {
+          state.scrollX = state.targetScrollX;
+          state.introBraking = false;
+        }
+      }
+
+      const isMobile = window.innerWidth < 640;
+      const baseSpacing = isMobile ? 195 : 248;
+      const centerIdx = Math.round(state.scrollX);
+
+      // 全部照片都保持清晰可见与精美3D陈列
+      for (let i = 0; i < cardElements.length; i++) {
+        const card = cardElements[i];
+        const offset = i - state.scrollX;
+        const absOffset = Math.abs(offset);
+
+        const sign = offset < 0 ? -1 : 1;
+        const spreadX = offset * baseSpacing - sign * Math.max(0, absOffset - 1) * (isMobile ? 22 : 30);
+
+        const depthZ = -Math.pow(absOffset, 1.35) * (isMobile ? 65 : 85);
+        const archY = Math.pow(absOffset, 1.5) * 10;
+
+        const floatY = Math.sin(now * 0.0022 + i * 1.05) * 6.5;
+        const idleTiltZ = Math.cos(now * 0.0016 + i * 0.85) * 1.15;
+
+        const coverflowRotY = Math.max(-48, Math.min(48, -offset * 19 - state.velocityX * 28));
+
+        const scale = Math.max(0.75, 1 - absOffset * 0.055);
+        // 保障画卷两侧所有照片的高清晰度与透光度，绝不隐藏
+        const opacity = Math.max(0.48, 1 - absOffset * 0.075);
+
+        card.style.transform = `translate3d(${spreadX.toFixed(1)}px, ${(archY + floatY).toFixed(1)}px, ${depthZ.toFixed(1)}px) rotateY(${coverflowRotY.toFixed(2)}deg) rotateZ(${idleTiltZ.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        card.style.opacity = opacity.toFixed(3);
+        card.style.zIndex = String(100 - Math.round(absOffset * 15));
+
+        card.classList.toggle('is-center', i === centerIdx && absOffset < 0.45);
+      }
+
+      updateDotsUI();
+      requestAnimationFrame(animateLoop);
+    }
+
+    /******************************************************************
+     * 9. SUBTLE FLOATING WARM LIGHT MOTES CANVAS
+     ******************************************************************/
+    function initAmbientCanvas() {
+      const canvas = document.getElementById('ambientCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = (canvas.width = window.innerWidth);
+      let h = (canvas.height = window.innerHeight);
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+
+      const particles = Array.from({ length: 28 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 1 + Math.random() * 2.2,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: -0.12 - Math.random() * 0.25,
+        alpha: 0.12 + Math.random() * 0.28
+      }));
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, w, h);
+        for (const p of particles) {
+          p.x += p.vx - state.velocityX * 1.4;
+          p.y += p.vy;
+          if (p.y < -10) p.y = h + 10;
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(182, 149, 102, ${p.alpha})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(drawParticles);
+      }
+      drawParticles();
+    }
+
+    /******************************************************************
+     * 10. MUSIC CONTROLLER & AUTO-PLAY / GESTURE UNLOCK
+     ******************************************************************/
+    function updateMusicUI(playing) {
+      state.isPlayingMusic = playing;
+      vinylDisc.classList.toggle('playing', playing);
+      eqContainer.classList.toggle('playing', playing);
+      musicStateLabel.textContent = playing ? '坂本龍一 · 正在播放' : '坂本龍一 · 已暂停';
+    }
+
+    function tryPlayMusic() {
+      bgmAudio.volume = 0.78;
+      const playPromise = bgmAudio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            updateMusicUI(true);
+            dismissWelcomeVeil();
+          })
+          .catch(() => {
+            updateMusicUI(false);
+          });
+      }
+    }
+
+    function dismissWelcomeVeil() {
+      if (!welcomeVeil || welcomeVeil.dataset.dismissed === 'true') return;
+      welcomeVeil.dataset.dismissed = 'true';
+      welcomeVeil.style.opacity = '0';
+      welcomeVeil.style.pointerEvents = 'none';
+      setTimeout(() => {
+        welcomeVeil.style.display = 'none';
+      }, 680);
+      startOpeningAlbumSweep();
+    }
+
+    /******************************************************************
+     * 11. WIRE ALL BUTTONS
+     ******************************************************************/
+    function wireControls() {
+      welcomeVeil.addEventListener('click', () => {
+        bgmAudio.play().then(() => updateMusicUI(true)).catch(() => {});
+        dismissWelcomeVeil();
+      });
+
+      enterGalleryBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        bgmAudio.play().then(() => updateMusicUI(true)).catch(() => {});
+        dismissWelcomeVeil();
+      });
+
+      musicToggleBtn.addEventListener('click', () => {
+        if (bgmAudio.paused) {
+          bgmAudio.play().then(() => updateMusicUI(true)).catch(() => {});
+        } else {
+          bgmAudio.pause();
+          updateMusicUI(false);
+        }
+      });
+
+      document.getElementById('replaySweepBtn').addEventListener('click', () => {
+        startOpeningAlbumSweep();
+      });
+
+      document.getElementById('stripPrevBtn').addEventListener('click', () => {
+        focusCardInStrip(Math.round(state.targetScrollX) - 1);
+      });
+      document.getElementById('stripNextBtn').addEventListener('click', () => {
+        focusCardInStrip(Math.round(state.targetScrollX) + 1);
+      });
+      document.getElementById('extractCenterBtn').addEventListener('click', () => {
+        enterSingleView(Math.round(state.scrollX));
+      });
+
+      document.getElementById('singlePrevBtn').addEventListener('click', () => {
+        switchSinglePhotoTo(state.activeIndex - 1, 'prev');
+      });
+      document.getElementById('singleNextBtn').addEventListener('click', () => {
+        switchSinglePhotoTo(state.activeIndex + 1, 'next');
+      });
+      document.getElementById('exitSingleBtn').addEventListener('click', () => {
+        exitSingleView(false);
+      });
+
+      document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-theme');
+        document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+      });
+    }
+
+    // Initialize Gallery
+    window.addEventListener('DOMContentLoaded', () => {
+      buildAlbumDOM();
+      probeExternalPhotos();
+      bindStageGestures();
+      wireControls();
+      initAmbientCanvas();
+      requestAnimationFrame(animateLoop);
+      tryPlayMusic();
+    });
+  </script>
+</body>
+</html>

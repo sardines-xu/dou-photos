@@ -258,7 +258,7 @@
       transition: opacity 0.45s ease, transform 0.45s ease;
     }
 
-    /* Photo Corner Mounts (复古相角装饰) */
+    /* Photo Corner Mounts */
     .photo-viewport {
       position: relative;
       width: 100%;
@@ -361,6 +361,18 @@
       animation: gentlePulseRing 1.8s infinite ease-in-out;
     }
 
+    /* Dot scroll container for handling any number of photos */
+    .dots-scroll-box {
+      max-width: min(42vw, 320px);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px 4px;
+    }
+    .dots-scroll-box::-webkit-scrollbar {
+      display: none;
+    }
+
     /* ============================================================
        EXTRACTED SINGLE PHOTO STAGE (精致相框单独查看层)
        ============================================================ */
@@ -384,7 +396,7 @@
       opacity: 1;
     }
 
-    /* Soft backdrop vignette when single photo is extracted */
+    /* Soft backdrop veil */
     .single-backdrop-veil {
       position: absolute;
       inset: 0;
@@ -417,12 +429,11 @@
       transform: translateY(-18px) scale(1) rotateX(0deg);
     }
 
-    /* When dragging or animating transitions in single view */
     .exquisite-frame-wrapper.no-transition {
       transition: none !important;
     }
 
-    /* Distinct Single-View Horizontal Switch Animations (3D Gallery Flip & Swing) */
+    /* Distinct Single-View Horizontal Switch Animations */
     @keyframes singleSlideOutLeft {
       0% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg); opacity: 1; }
       100% { transform: translateY(-18px) translateX(-52%) translateZ(-180px) rotateY(-34deg) rotateZ(-2deg); opacity: 0; }
@@ -771,8 +782,10 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       </button>
 
-      <div id="dotIndicators" class="flex items-center gap-1.5">
-        <!-- Dots for ALL photos injected by JS -->
+      <div class="dots-scroll-box">
+        <div id="dotIndicators" class="flex items-center gap-1.5 whitespace-nowrap">
+          <!-- Dots for ALL photos injected dynamically by JS -->
+        </div>
       </div>
 
       <button id="stripNextBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向右滑动">
@@ -837,35 +850,51 @@
   </div>
 
   <!-- ============================================================
-       CORE INTERACTION & PHYSICS ENGINE SCRIPT
+       CORE INTERACTION & DYNAMIC PHOTO ENGINE SCRIPT
        ============================================================ -->
   <script>
     /******************************************************************
      * 【用户相册配置区 USER_CONFIG】
-     * 把所有照片放进同级目录下的 `photos/` 文件夹中即可！
+     * 无论放入多少张照片均可自由展示！
+     *
+     * 【使用指南】：
+     * 1. 默认模式（photoCount: 'auto'）：
+     *    只需把照片按 1.jpg, 2.jpg, 3.jpg ... 放入同级 photos/ 文件夹。
+     *    相册会自动连续探测 photos/ 目录，放入 5 张就显示 5 张，放入 20 张就显示 20 张！
+     *    （同时兼容 .jpg, .JPG, .png, .PNG, .jpeg, .webp 等格式）
+     *
+     * 2. 指定张数模式：
+     *    如果您明确放入了比如 15 张，可直接设置 photoCount: 15，相册直接加载 1 到 15 张。
+     *
+     * 3. 自定义文件名模式（如果不按数字命名）：
+     *    可在 customPhotos: ['doudou1.jpg', 'park.png'] 中直接填写文件名。
      ******************************************************************/
     const USER_CONFIG = {
       photoFolder: './photos/',
       musicFile: './music/bgm.mp3',
-      // 全部照片列表：所有照片均会加载并展示在画卷中
-      photos: [
-        { file: '1.jpg', caption: '开开心心', fallback: './photos/1.jpg' },
-        { file: '2.jpg', caption: '开开心心', fallback: './photos/2.jpg' },
-        { file: '3.jpg', caption: '开开心心', fallback: './photos/3.jpg' },
-        { file: '4.jpg', caption: '开开心心', fallback: './photos/4.jpg' },
-        { file: '5.jpg', caption: '开开心心', fallback: './photos/5.jpg' },
-        { file: '6.jpg', caption: '开开心心', fallback: './photos/6.jpg' },
-        { file: '7.jpg', caption: '开开心心', fallback: './photos/7.jpg' },
-        { file: '8.jpg', caption: '开开心心', fallback: './photos/8.jpg' }
-      ]
+      photoCount: 'auto',       // 'auto' (自动扫描探测) | 数字 (如 12, 20)
+      customPhotos: [],         // 自定义文件名列表，例如 ['a.jpg', 'b.png']
+      maxAutoScan: 100          // 自动探测最大张数上限
     };
+
+    // 默认内置兜底示范照片（用于无外部文件时的平滑展示）
+    const DEMO_FALLBACK_PHOTOS = [
+      { url: './photos/1.jpg' },
+      { url: './photos/2.jpg' },
+      { url: './photos/3.jpg' },
+      { url: './photos/4.jpg' },
+      { url: './photos/5.jpg' },
+      { url: './photos/6.jpg' },
+      { url: './photos/7.jpg' },
+      { url: './photos/8.jpg' }
+    ];
 
     // State Management
     const state = {
-      photos: USER_CONFIG.photos.map((p, idx) => ({
-        ...p,
+      photos: DEMO_FALLBACK_PHOTOS.map((p, idx) => ({
         id: idx,
-        resolvedSrc: p.fallback
+        resolvedSrc: p.url,
+        caption: '开开心心'
       })),
       viewMode: 'strip',        // 'strip' (全部展示) | 'single' (单独相框展示)
       activeIndex: 0,           // Currently centered or extracted photo index
@@ -879,9 +908,9 @@
       lastPointerX: 0,
       lastPointerTime: 0,
 
-      // Opening fast-to-slow sweep state (严格设定为2.0秒)
+      // Opening fast-to-slow sweep state (严格设定为 2.0 秒)
       introSweepActive: false,
-      introBraking: false,      // Smooth deceleration when user clicks during intro sweep
+      introBraking: false,
       introStartTime: 0,
       introDuration: 2000,      // 2.0 秒入场由快到慢动画
       introStartScroll: 0,
@@ -920,26 +949,118 @@
     let cardElements = [];
 
     /******************************************************************
-     * 1. EXTERNAL `./photos/` PROBING (支持直接读取同级 photos 文件夹)
+     * 1. DYNAMIC PHOTO DISCOVERY ENGINE (自动探测任意数量的照片)
      ******************************************************************/
-    function probeExternalPhotos() {
-      state.photos.forEach((item, idx) => {
-        if (!item.file || item.file.startsWith('data:') || item.file.startsWith('blob:')) return;
-        const candidateUrl = USER_CONFIG.photoFolder + item.file;
-        const probeImg = new Image();
-        probeImg.onload = () => {
-          state.photos[idx].resolvedSrc = candidateUrl;
-          if (cardElements[idx]) {
-            const imgEl = cardElements[idx].querySelector('img');
-            if (imgEl) imgEl.src = candidateUrl;
-          }
-          if (state.activeIndex === idx && singleFramedImg) {
-            singleFramedImg.src = candidateUrl;
-          }
-        };
-        probeImg.onerror = () => {};
-        probeImg.src = candidateUrl;
+    // 快速探测单张图片并支持各种格式 (.jpg, .JPG, .png, .PNG, .jpeg, .webp)
+    function testImageUrl(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(null);
+        img.src = url;
       });
+    }
+
+    async function probePhotoNumber(folder, num) {
+      const extensions = ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.JPEG', '.webp'];
+      for (const ext of extensions) {
+        const candidate = `${folder}${num}${ext}`;
+        const found = await testImageUrl(candidate);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    async function discoverAllPhotos() {
+      const folder = USER_CONFIG.photoFolder;
+      let discoveredList = [];
+
+      // 方式 1: 用户指定了自定义文件名列表
+      if (Array.isArray(USER_CONFIG.customPhotos) && USER_CONFIG.customPhotos.length > 0) {
+        for (let i = 0; i < USER_CONFIG.customPhotos.length; i++) {
+          discoveredList.push({
+            id: i,
+            resolvedSrc: `${folder}${USER_CONFIG.customPhotos[i]}`,
+            caption: '开开心心'
+          });
+        }
+        applyDiscoveredPhotos(discoveredList);
+        return;
+      }
+
+      // 方式 2: 用户指定了具体数字 photoCount: N
+      if (typeof USER_CONFIG.photoCount === 'number' && USER_CONFIG.photoCount > 0) {
+        const count = USER_CONFIG.photoCount;
+        for (let i = 1; i <= count; i++) {
+          const url = await probePhotoNumber(folder, i);
+          discoveredList.push({
+            id: i - 1,
+            resolvedSrc: url || `${folder}${i}.jpg`,
+            caption: '开开心心'
+          });
+        }
+        applyDiscoveredPhotos(discoveredList);
+        return;
+      }
+
+      // 方式 4: 默认 auto 模式 —— 智能并发批量扫描探测 1, 2, 3... 直至无更多照片
+      const maxScan = USER_CONFIG.maxAutoScan || 100;
+      let currentNum = 1;
+      let consecutiveMisses = 0;
+
+      while (currentNum <= maxScan && consecutiveMisses < 3) {
+        const batchSize = 5;
+        const promises = [];
+        for (let b = 0; b < batchSize && (currentNum + b) <= maxScan; b++) {
+          promises.push(probePhotoNumber(folder, currentNum + b));
+        }
+        const results = await Promise.all(promises);
+
+        let batchHasPhoto = false;
+        for (let r = 0; r < results.length; r++) {
+          const foundUrl = results[r];
+          if (foundUrl) {
+            batchHasPhoto = true;
+            consecutiveMisses = 0;
+            discoveredList.push({
+              id: discoveredList.length,
+              resolvedSrc: foundUrl,
+              caption: '开开心心'
+            });
+          } else {
+            consecutiveMisses++;
+          }
+        }
+
+        if (!batchHasPhoto && consecutiveMisses >= 3) {
+          break;
+        }
+        currentNum += batchSize;
+      }
+
+      if (discoveredList.length > 0) {
+        applyDiscoveredPhotos(discoveredList);
+      }
+    }
+
+    function applyDiscoveredPhotos(list) {
+      if (!list || list.length === 0) return;
+      state.photos = list;
+      buildAlbumDOM();
+
+      if (state.introSweepActive) {
+        const total = state.photos.length;
+        state.introEndScroll = total <= 3 ? (total - 1) : Math.min(total - 1, 3);
+        state.targetScrollX = state.introEndScroll;
+      } else {
+        state.targetScrollX = Math.min(state.targetScrollX, state.photos.length - 1);
+        state.activeIndex = Math.min(state.activeIndex, state.photos.length - 1);
+      }
+
+      if (state.viewMode === 'single') {
+        populateSingleFrameContent(state.activeIndex);
+      }
+      modeStatusText.textContent = `DOUDOU GALLERY · 全部 ${state.photos.length} 张照片展示中`;
     }
 
     /******************************************************************
@@ -991,7 +1112,7 @@
         // Dot indicator for every photo
         const dot = document.createElement('button');
         dot.type = 'button';
-        dot.className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/35 hover:bg-[#B69566] w-1.5';
+        dot.className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/35 hover:bg-[#B69566] w-1.5 flex-shrink-0';
         dot.title = `第 ${index + 1} 张 · 开开心心`;
         dot.addEventListener('click', () => {
           if (state.introSweepActive) {
@@ -1015,9 +1136,13 @@
 
       for (let i = 0; i < dots.length; i++) {
         if (i === highlightIdx) {
-          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566] w-5';
+          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566] w-5 flex-shrink-0';
+          // 自动保持高亮圆点在滚动框内可见
+          if (dots[i].scrollIntoView) {
+            dots[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
         } else {
-          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/30 hover:bg-[#B69566]/60 w-1.5';
+          dots[i].className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/30 hover:bg-[#B69566]/60 w-1.5 flex-shrink-0';
         }
       }
     }
@@ -1038,8 +1163,8 @@
 
       const total = state.photos.length;
       // 全部照片都已展示在画卷中。
-      // 如果总照片数较少 (<= 3张)，2秒足以掠过全部并停在最后一张；
-      // 如果照片较多，2秒内掠过前几张后由快到慢优雅减速停下。
+      // 若总照片数少 (<= 3张)，2秒足以掠过全部并停在最后一张；
+      // 若照片较多，2秒内掠过前3~4张后由快到慢优雅减速停下。
       const targetStop = total <= 3 ? (total - 1) : Math.min(total - 1, 3);
 
       state.introStartScroll = 0;
@@ -1161,7 +1286,7 @@
       stripFooterBar.style.opacity = '1';
       stripFooterBar.style.pointerEvents = 'none';
 
-      modeStatusText.textContent = 'DOUDOU GALLERY · 全部照片展示中';
+      modeStatusText.textContent = `DOUDOU GALLERY · 全部 ${state.photos.length} 张照片展示中`;
       showToast('🐾 已回到中心位置 · 开开心心');
       updateDotsUI();
     }
@@ -1367,7 +1492,7 @@
     }
 
     /******************************************************************
-     * 8. MAIN 60FPS ANIMATION LOOP (3D Album Physics + Visible Clear Spread)
+     * 8. MAIN 60FPS ANIMATION LOOP (3D Album Physics + Virtualized Culling)
      ******************************************************************/
     function animateLoop(now) {
       if (state.introSweepActive) {
@@ -1380,7 +1505,6 @@
         state.velocityX = state.scrollX - prevScroll;
 
         if (t >= 1) {
-          // 2秒时间到达：自然减速到零停下，无论是否展示完，平滑停留在当前照片
           state.introSweepActive = false;
           const finalIdx = Math.round(state.scrollX);
           state.scrollX = finalIdx;
@@ -1405,11 +1529,19 @@
       const baseSpacing = isMobile ? 195 : 248;
       const centerIdx = Math.round(state.scrollX);
 
-      // 全部照片都保持清晰可见与精美3D陈列
+      // 无论有 5 张、20 张还是 100 张照片，通过视距剔除保证流畅 60fps
       for (let i = 0; i < cardElements.length; i++) {
         const card = cardElements[i];
         const offset = i - state.scrollX;
         const absOffset = Math.abs(offset);
+
+        // 超出视界较远的照片关闭渲染以节省性能
+        if (absOffset > 7.5) {
+          card.style.display = 'none';
+          continue;
+        } else {
+          card.style.display = 'flex';
+        }
 
         const sign = offset < 0 ? -1 : 1;
         const spreadX = offset * baseSpacing - sign * Math.max(0, absOffset - 1) * (isMobile ? 22 : 30);
@@ -1423,7 +1555,6 @@
         const coverflowRotY = Math.max(-48, Math.min(48, -offset * 19 - state.velocityX * 28));
 
         const scale = Math.max(0.75, 1 - absOffset * 0.055);
-        // 保障画卷两侧所有照片的高清晰度与透光度，绝不隐藏
         const opacity = Math.max(0.48, 1 - absOffset * 0.075);
 
         card.style.transform = `translate3d(${spreadX.toFixed(1)}px, ${(archY + floatY).toFixed(1)}px, ${depthZ.toFixed(1)}px) rotateY(${coverflowRotY.toFixed(2)}deg) rotateZ(${idleTiltZ.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
@@ -1573,7 +1704,7 @@
     // Initialize Gallery
     window.addEventListener('DOMContentLoaded', () => {
       buildAlbumDOM();
-      probeExternalPhotos();
+      discoverAllPhotos(); // 启动全自动照片探测引擎
       bindStageGestures();
       wireControls();
       initAmbientCanvas();

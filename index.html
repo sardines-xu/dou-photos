@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>豆豆 · 专属相册</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
       --card-bg: #FCFBF9;
       --frame-outer: #382E27;
       --frame-mat: #FAF8F3;
-      --shadow-ambient: rgba(42, 37, 34, 0.14);
+      --shadow-ambient: rgba(42, 37, 34, 0.12);
     }
 
     body.dark-theme {
@@ -32,7 +32,7 @@
       --card-bg: #242228;
       --frame-outer: #2A231E;
       --frame-mat: #1E1D21;
-      --shadow-ambient: rgba(0, 0, 0, 0.48);
+      --shadow-ambient: rgba(0, 0, 0, 0.45);
     }
 
     * {
@@ -50,14 +50,14 @@
       background-color: var(--bg-primary);
       color: var(--text-main);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-      transition: background-color 0.6s ease, color 0.6s ease;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     .font-serif-display {
       font-family: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
     }
 
-    /* Minimalist Soft Ambient Background */
+    /* Hardware accelerated smooth backdrop */
     .gallery-backdrop {
       position: fixed;
       inset: 0;
@@ -67,7 +67,7 @@
         radial-gradient(circle at 15% 85%, rgba(182, 149, 102, 0.07) 0%, transparent 50%),
         var(--bg-primary);
       z-index: 0;
-      transition: background 0.6s ease;
+      will-change: transform;
     }
 
     body.dark-theme .gallery-backdrop {
@@ -77,10 +77,9 @@
         var(--bg-primary);
     }
 
-    /* Subtle museum wall border lines */
     .gallery-wainscot {
       position: fixed;
-      inset: 16px;
+      inset: 12px;
       border: 1px solid rgba(182, 149, 102, 0.22);
       pointer-events: none;
       z-index: 2;
@@ -141,27 +140,24 @@
       animation: heartFloat 1.8s ease-in-out infinite;
     }
 
-    /* 3D Stage for Album Strip */
+    /* High-Performance 3D Stage for 32 Photos */
     .album-stage-wrapper {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      perspective: 1800px;
+      perspective: 1600px;
       z-index: 10;
-      transition: transform 0.82s cubic-bezier(0.22, 1, 0.36, 1),
-                  opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
-                  filter 0.72s ease;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, opacity;
       touch-action: none;
     }
 
-    /* When a photo is extracted into Single View, the album strip slowly sinks down */
     .album-stage-wrapper.sunken {
       transform: translateY(35vh) scale(0.66);
       opacity: 0.48;
-      filter: blur(0.8px);
     }
 
     .album-track {
@@ -171,40 +167,40 @@
       transform-style: preserve-3d;
     }
 
-    /* Individual Album Card in the Strip */
+    /* Individual Album Card in the Strip (GPU Optimized) */
     .album-card {
       position: absolute;
-      width: 280px;
-      height: 356px;
-      left: -140px;
-      top: -178px;
+      width: 270px;
+      height: 346px;
+      left: -135px;
+      top: -173px;
       background: var(--card-bg);
       border-radius: 6px;
-      padding: 16px 16px 18px 16px;
+      padding: 14px 14px 16px 14px;
       box-shadow:
-        0 22px 46px -12px var(--shadow-ambient),
-        0 4px 14px -2px rgba(0, 0, 0, 0.06),
-        inset 0 0 0 1px rgba(182, 149, 102, 0.32);
+        0 16px 36px -10px var(--shadow-ambient),
+        0 3px 10px -2px rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(182, 149, 102, 0.3);
       cursor: pointer;
       transform-style: preserve-3d;
       will-change: transform, opacity;
-      transition: box-shadow 0.35s ease, background-color 0.4s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     @media (max-width: 640px) {
       .album-card {
-        width: 232px;
-        height: 306px;
-        left: -116px;
-        top: -153px;
-        padding: 13px 13px 15px 13px;
+        width: 226px;
+        height: 298px;
+        left: -113px;
+        top: -149px;
+        padding: 12px 12px 14px 12px;
       }
     }
 
-    /* Inner decorative hairline inside card */
     .album-card::before {
       content: '';
       position: absolute;
@@ -212,22 +208,12 @@
       border: 1px solid rgba(182, 149, 102, 0.18);
       border-radius: 3px;
       pointer-events: none;
-      transition: border-color 0.35s ease;
     }
 
-    .album-card:hover::before,
     .album-card.is-center::before {
       border-color: rgba(182, 149, 102, 0.58);
     }
 
-    .album-card:hover {
-      box-shadow:
-        0 28px 58px -12px rgba(182, 149, 102, 0.35),
-        0 8px 22px -4px rgba(0, 0, 0, 0.09),
-        inset 0 0 0 1.5px rgba(182, 149, 102, 0.65);
-    }
-
-    /* When this specific card is extracted upward into the center frame */
     .album-card.extracted-slot .card-inner-content {
       opacity: 0.14;
       transform: scale(0.92);
@@ -236,7 +222,7 @@
     .album-card.extracted-slot::after {
       content: '正在上方展映';
       position: absolute;
-      inset: 18px;
+      inset: 16px;
       border: 1.5px dashed rgba(182, 149, 102, 0.65);
       border-radius: 4px;
       display: flex;
@@ -255,22 +241,21 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: opacity 0.45s ease, transform 0.45s ease;
     }
 
     /* Photo Corner Mounts */
     .photo-viewport {
       position: relative;
       width: 100%;
-      height: 254px;
+      height: 246px;
       overflow: hidden;
       background: #E5E0D5;
       border-radius: 2px;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.12);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
     }
     @media (max-width: 640px) {
       .photo-viewport {
-        height: 212px;
+        height: 206px;
       }
     }
 
@@ -278,29 +263,11 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
       pointer-events: none;
+      loading: lazy;
+      decoding: async;
     }
 
-    .album-card:hover .photo-viewport img {
-      transform: scale(1.06);
-    }
-
-    /* Diagonal shimmer sheen on photo */
-    .photo-shimmer {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(125deg, transparent 30%, rgba(255, 255, 255, 0.32) 48%, transparent 66%);
-      transform: translateX(-120%);
-      transition: transform 0.75s ease;
-      pointer-events: none;
-    }
-    .album-card:hover .photo-shimmer,
-    .album-card.is-center .photo-shimmer {
-      transform: translateX(120%);
-    }
-
-    /* Vintage Gold Corner Brackets */
     .corner-mount {
       position: absolute;
       width: 14px;
@@ -310,64 +277,50 @@
       z-index: 4;
       pointer-events: none;
       opacity: 0.85;
-      transition: all 0.3s ease;
-    }
-    .album-card:hover .corner-mount,
-    .album-card.is-center .corner-mount {
-      width: 18px;
-      height: 18px;
-      opacity: 1;
     }
     .corner-tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
     .corner-tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
     .corner-bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
     .corner-br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
 
-    /* Interactive "Click me" floating seal badge */
     .invite-badge {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(38, 32, 28, 0.76);
-      backdrop-filter: blur(6px);
+      bottom: 8px;
+      right: 8px;
+      background: rgba(38, 32, 28, 0.8);
       color: #F7EFE2;
       font-size: 11px;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 999px;
       border: 1px solid rgba(212, 182, 132, 0.55);
       display: flex;
       align-items: center;
       gap: 4px;
       opacity: 0;
-      transform: translateY(6px) scale(0.92);
-      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(4px);
+      transition: all 0.25s ease;
       z-index: 5;
     }
-    .album-card:hover .invite-badge,
     .album-card.is-center .invite-badge {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
 
-    @keyframes gentlePulseRing {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.22); opacity: 0.4; }
-    }
     .pulse-dot {
       width: 6px;
       height: 6px;
       border-radius: 999px;
       background: #E6C387;
-      animation: gentlePulseRing 1.8s infinite ease-in-out;
     }
 
-    /* Dot scroll container for handling any number of photos */
+    /* Dot scroll container for 32 photos */
     .dots-scroll-box {
-      max-width: min(38vw, 300px);
+      max-width: min(42vw, 320px);
       overflow-x: auto;
       scrollbar-width: none;
       -ms-overflow-style: none;
       padding: 2px 4px;
+      scroll-behavior: smooth;
     }
     .dots-scroll-box::-webkit-scrollbar {
       display: none;
@@ -378,38 +331,36 @@
       position: fixed;
       top: 50%;
       transform: translateY(-50%);
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       border-radius: 999px;
-      background: rgba(252, 251, 249, 0.92);
+      background: rgba(252, 251, 249, 0.94);
       border: 1px solid rgba(182, 149, 102, 0.45);
       color: #2A2522;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 25px -4px rgba(42, 37, 34, 0.16);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 22px -4px rgba(42, 37, 34, 0.16);
       z-index: 25;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: all 0.25s ease;
     }
     body.dark-theme .strip-stage-nav-btn {
-      background: rgba(36, 34, 40, 0.92);
+      background: rgba(36, 34, 40, 0.94);
       color: #F2ECE1;
       border-color: rgba(200, 169, 126, 0.35);
-      box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 8px 22px -4px rgba(0, 0, 0, 0.4);
     }
     .strip-stage-nav-btn:hover {
       background: var(--gold-accent);
       color: #FFFFFF;
-      transform: translateY(-50%) scale(1.08);
-      box-shadow: 0 14px 30px -4px rgba(182, 149, 102, 0.35);
+      transform: translateY(-50%) scale(1.06);
     }
     .strip-stage-nav-btn.prev {
-      left: 18px;
+      left: 14px;
     }
     .strip-stage-nav-btn.next {
-      right: 18px;
+      right: 14px;
     }
     @media (max-width: 640px) {
       .strip-stage-nav-btn {
@@ -434,7 +385,7 @@
       pointer-events: none;
       opacity: 0;
       perspective: 1600px;
-      transition: opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.42s ease;
       touch-action: none;
     }
 
@@ -446,24 +397,22 @@
     .single-backdrop-veil {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 42%, rgba(246, 243, 236, 0.55) 0%, rgba(235, 229, 218, 0.86) 100%);
-      backdrop-filter: blur(3px);
+      background: rgba(246, 243, 236, 0.88);
       z-index: -1;
-      transition: opacity 0.5s ease;
     }
     body.dark-theme .single-backdrop-veil {
-      background: radial-gradient(circle at 50% 42%, rgba(24, 23, 27, 0.65) 0%, rgba(16, 15, 18, 0.9) 100%);
+      background: rgba(20, 19, 23, 0.92);
     }
 
     .exquisite-frame-wrapper {
       position: relative;
       transform-style: preserve-3d;
-      transform: translateY(210px) scale(0.52) rotateX(14deg);
-      transition: transform 0.72s cubic-bezier(0.19, 1, 0.22, 1),
-                  opacity 0.52s ease;
+      transform: translateY(180px) scale(0.65);
+      transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                  opacity 0.45s ease;
       will-change: transform, opacity;
       max-width: 92vw;
-      margin-bottom: 6vh;
+      margin-bottom: 5vh;
       cursor: grab;
     }
     .exquisite-frame-wrapper:active {
@@ -471,82 +420,75 @@
     }
 
     .single-stage-overlay.active .exquisite-frame-wrapper {
-      transform: translateY(-18px) scale(1) rotateX(0deg);
+      transform: translateY(-14px) scale(1);
     }
 
     .exquisite-frame-wrapper.no-transition {
       transition: none !important;
     }
 
-    /* Distinct Single-View Horizontal Switch Animations */
+    /* Single Switch Animations */
     @keyframes singleSlideOutLeft {
-      0% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg); opacity: 1; }
-      100% { transform: translateY(-18px) translateX(-52%) translateZ(-180px) rotateY(-34deg) rotateZ(-2deg); opacity: 0; }
+      0% { transform: translateY(-14px) translateX(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-14px) translateX(-45%) scale(0.85); opacity: 0; }
     }
     @keyframes singleSlideInRight {
-      0% { transform: translateY(-18px) translateX(52%) translateZ(-180px) rotateY(34deg) rotateZ(2deg); opacity: 0; }
-      100% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+      0% { transform: translateY(-14px) translateX(45%) scale(0.85); opacity: 0; }
+      100% { transform: translateY(-14px) translateX(0) scale(1); opacity: 1; }
     }
     @keyframes singleSlideOutRight {
-      0% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg); opacity: 1; }
-      100% { transform: translateY(-18px) translateX(52%) translateZ(-180px) rotateY(34deg) rotateZ(2deg); opacity: 0; }
+      0% { transform: translateY(-14px) translateX(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-14px) translateX(45%) scale(0.85); opacity: 0; }
     }
     @keyframes singleSlideInLeft {
-      0% { transform: translateY(-18px) translateX(-52%) translateZ(-180px) rotateY(-34deg) rotateZ(-2deg); opacity: 0; }
-      100% { transform: translateY(-18px) translateX(0) translateZ(0) rotateY(0deg) rotateZ(0deg); opacity: 1; }
+      0% { transform: translateY(-14px) translateX(-45%) scale(0.85); opacity: 0; }
+      100% { transform: translateY(-14px) translateX(0) scale(1); opacity: 1; }
     }
 
     .exquisite-frame-wrapper.anim-out-left {
-      animation: singleSlideOutLeft 0.34s cubic-bezier(0.4, 0, 0.8, 0.6) forwards;
+      animation: singleSlideOutLeft 0.26s ease-in forwards;
     }
     .exquisite-frame-wrapper.anim-in-right {
-      animation: singleSlideInRight 0.46s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+      animation: singleSlideInRight 0.35s ease-out forwards;
     }
     .exquisite-frame-wrapper.anim-out-right {
-      animation: singleSlideOutRight 0.34s cubic-bezier(0.4, 0, 0.8, 0.6) forwards;
+      animation: singleSlideOutRight 0.26s ease-in forwards;
     }
     .exquisite-frame-wrapper.anim-in-left {
-      animation: singleSlideInLeft 0.46s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+      animation: singleSlideInLeft 0.35s ease-out forwards;
     }
 
-    /* Museum Frame Carved Styling */
     .museum-outer-frame {
       position: relative;
       background: linear-gradient(145deg, #43372E 0%, #29211B 50%, #3B3028 100%);
-      padding: 14px;
+      padding: 12px;
       border-radius: 8px;
       box-shadow:
-        0 38px 75px -15px rgba(28, 22, 18, 0.42),
-        0 12px 28px -6px rgba(28, 22, 18, 0.24),
-        inset 0 1px 1px rgba(255, 238, 210, 0.35),
+        0 28px 60px -12px rgba(28, 22, 18, 0.38),
+        0 8px 20px -4px rgba(28, 22, 18, 0.22),
         inset 0 0 0 2px #8B6F47;
     }
 
     .museum-mat-board {
       position: relative;
       background: var(--frame-mat);
-      padding: 26px 28px 20px 28px;
+      padding: 22px 24px 18px 24px;
       border-radius: 3px;
       border: 2px solid #C6A677;
-      box-shadow:
-        inset 0 0 24px rgba(139, 111, 71, 0.12),
-        0 2px 6px rgba(0, 0, 0, 0.25);
     }
 
     @media (max-width: 640px) {
-      .museum-outer-frame { padding: 10px; }
-      .museum-mat-board { padding: 16px 16px 14px 16px; }
+      .museum-outer-frame { padding: 8px; }
+      .museum-mat-board { padding: 14px 14px 12px 14px; }
     }
 
     .museum-image-bevel {
       position: relative;
-      width: min(560px, 78vw);
-      height: min(390px, 52vh);
-      padding: 5px;
+      width: min(540px, 80vw);
+      height: min(380px, 50vh);
+      padding: 4px;
       background: linear-gradient(135deg, #D5BC94 0%, #9E7F53 50%, #E7D4B5 100%);
-      box-shadow:
-        inset 0 3px 8px rgba(0, 0, 0, 0.28),
-        0 1px 2px rgba(255, 255, 255, 0.8);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
       overflow: hidden;
     }
 
@@ -561,12 +503,12 @@
 
     .frame-filigree {
       position: absolute;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       pointer-events: none;
       z-index: 5;
       color: #D6B785;
-      opacity: 0.92;
+      opacity: 0.9;
     }
     .filigree-tl { top: 6px; left: 6px; }
     .filigree-tr { top: 6px; right: 6px; transform: scaleX(-1); }
@@ -574,9 +516,9 @@
     .filigree-br { bottom: 6px; right: 6px; transform: scale(-1, -1); }
 
     .museum-plaque {
-      margin-top: 16px;
-      padding: 10px 20px;
-      background: linear-gradient(90deg, rgba(198, 166, 119, 0.10) 0%, rgba(198, 166, 119, 0.22) 50%, rgba(198, 166, 119, 0.10) 100%);
+      margin-top: 14px;
+      padding: 8px 18px;
+      background: rgba(198, 166, 119, 0.16);
       border-top: 1px solid rgba(182, 149, 102, 0.42);
       border-bottom: 1px solid rgba(182, 149, 102, 0.42);
       display: flex;
@@ -607,17 +549,15 @@
       background: var(--gold-accent);
       border-radius: 2px;
       height: 4px;
-      transition: height 0.2s ease;
     }
     .playing .eq-bar-1 { animation: eqBar1 0.8s infinite ease-in-out; }
     .playing .eq-bar-2 { animation: eqBar2 0.7s infinite ease-in-out; }
     .playing .eq-bar-3 { animation: eqBar3 0.9s infinite ease-in-out; }
     .playing .eq-bar-4 { animation: eqBar1 0.65s infinite ease-in-out 0.2s; }
 
-    /* Downward Swipe Hint Bounce */
     @keyframes swipeDownHint {
-      0%, 100% { transform: translateY(0); opacity: 0.78; }
-      50% { transform: translateY(5px); opacity: 1; }
+      0%, 100% { transform: translateY(0); opacity: 0.8; }
+      50% { transform: translateY(4px); opacity: 1; }
     }
     .swipe-down-pill {
       animation: swipeDownHint 2.2s infinite ease-in-out;
@@ -626,22 +566,21 @@
 </head>
 <body>
 
-  <!-- Background & Subtle Dust Canvas -->
+  <!-- Background & Dust Canvas -->
   <div class="gallery-backdrop"></div>
   <canvas id="ambientCanvas" class="fixed inset-0 pointer-events-none z-[1]"></canvas>
   <div class="gallery-wainscot"></div>
 
-  <!-- Background Audio: Merry Christmas Mr. Lawrence - 坂本龍一 -->
-  <audio id="bgmAudio" src="./music/bgm.mp3" loop preload="auto"></audio>
+  <!-- Background Audio: Merry Christmas Mr. Lawrence - 坂本龍一 (preload="none" 杜绝卡顿与抢网) -->
+  <audio id="bgmAudio" src="./music/bgm.mp3" loop preload="none"></audio>
 
   <!-- ============================================================
        TOP NAVIGATION & MUSIC CONTROLLER BAR
        ============================================================ -->
-  <header class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex items-center justify-between gap-3 pointer-events-none">
-    <!-- Left Brand / Title: 豆豆 + Cute Animated Puppy -->
+  <header class="fixed top-0 left-0 right-0 z-40 px-5 py-3.5 flex items-center justify-between gap-3 pointer-events-none">
     <div class="flex items-center gap-2.5 pointer-events-auto">
-      <div class="w-11 h-11 rounded-full border border-[#B69566]/45 flex items-center justify-center bg-[#FCFBF9]/90 backdrop-blur-md shadow-sm overflow-visible relative">
-        <svg class="puppy-avatar w-9 h-9" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="w-10 h-10 rounded-full border border-[#B69566]/45 flex items-center justify-center bg-[#FCFBF9]/95 shadow-sm overflow-visible relative">
+        <svg class="puppy-avatar w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
           <ellipse cx="34" cy="45" rx="14" ry="10" fill="#F3DEC3" stroke="#8C6239" stroke-width="2"/>
           <path d="M23 38C28 41 36 41 41 38" stroke="#E05A47" stroke-width="3" stroke-linecap="round"/>
@@ -675,25 +614,25 @@
           <h1 class="font-serif-display text-xl sm:text-2xl font-bold tracking-wider leading-tight">豆豆</h1>
           <span class="text-xs px-2 py-0.5 rounded-full bg-[#B69566]/15 text-[#B69566] font-medium">开开心心 🐾</span>
         </div>
-        <p id="modeStatusText" class="text-[11px] tracking-widest uppercase text-[#7D746B]">DOUDOU GALLERY · 正在扫描照片...</p>
+        <p id="modeStatusText" class="text-[11px] tracking-widest uppercase text-[#7D746B]">DOUDOU GALLERY · 32张照片全景展映</p>
       </div>
     </div>
 
     <!-- Right Action Controls -->
     <div class="flex items-center gap-2 sm:gap-2.5 pointer-events-auto flex-wrap justify-end">
       <!-- Replay Opening Sweep Button -->
-      <button id="replaySweepBtn" type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border border-[#B69566]/40 bg-[#FCFBF9]/85 text-[#2A2522] hover:border-[#B69566] hover:bg-[#B69566]/10 transition flex items-center gap-1.5 backdrop-blur-md shadow-sm" title="重播2秒入场循环掠过动画">
+      <button id="replaySweepBtn" type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border border-[#B69566]/40 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] hover:bg-[#B69566]/10 transition flex items-center gap-1.5 shadow-sm" title="重播2秒入场循环掠过动画">
         <span>✨</span>
         <span class="hidden sm:inline">重播入场掠过</span>
       </button>
 
       <!-- Theme Toggle (Warm Ivory / Dark Gallery) -->
-      <button id="themeToggleBtn" type="button" class="w-8 h-8 rounded-full border border-[#B69566]/40 bg-[#FCFBF9]/85 text-[#2A2522] hover:border-[#B69566] transition flex items-center justify-center backdrop-blur-md shadow-sm" title="切换浅色画廊 / 夜色胶片主题">
+      <button id="themeToggleBtn" type="button" class="w-8 h-8 rounded-full border border-[#B69566]/40 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] transition flex items-center justify-center shadow-sm" title="切换浅色画廊 / 夜色胶片主题">
         <span id="themeIcon">🌙</span>
       </button>
 
       <!-- Vinyl Music Player Pill -->
-      <button id="musicToggleBtn" type="button" class="pl-1.5 pr-3 py-1 rounded-full border border-[#B69566]/50 bg-[#FCFBF9]/90 text-[#2A2522] hover:border-[#B69566] transition flex items-center gap-2 backdrop-blur-md shadow-sm group" title="点击播放/暂停《Merry Christmas Mr. Lawrence - 坂本龍一》">
+      <button id="musicToggleBtn" type="button" class="pl-1.5 pr-3 py-1 rounded-full border border-[#B69566]/50 bg-[#FCFBF9]/95 text-[#2A2522] hover:border-[#B69566] transition flex items-center gap-2 shadow-sm group" title="点击播放/暂停《Merry Christmas Mr. Lawrence - 坂本龍一》">
         <div id="vinylDisc" class="vinyl-disc w-7 h-7 rounded-full bg-zinc-900 border-2 border-[#B69566] flex items-center justify-center relative shadow-inner">
           <div class="w-2.5 h-2.5 rounded-full bg-[#D9B882] border border-zinc-900"></div>
         </div>
@@ -712,10 +651,9 @@
   </header>
 
   <!-- ============================================================
-       MAIN ALBUM STRIP STAGE (全部展示模式：3D 全景环形画廊 + 左右切换按钮)
+       MAIN ALBUM STRIP STAGE (全部展示模式：32张照片 3D 环形无缝画廊)
        ============================================================ -->
   <main id="albumStageWrapper" class="album-stage-wrapper">
-    <!-- Left & Right Floating Quick Navigation Arrows in Strip View -->
     <button id="stripStagePrevBtn" type="button" class="strip-stage-nav-btn prev" title="上一张照片 (左滑)">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </button>
@@ -724,7 +662,7 @@
     </button>
 
     <div id="albumTrack" class="album-track">
-      <!-- All photo cards injected dynamically by JS -->
+      <!-- 32 Cards dynamically injected -->
     </div>
   </main>
 
@@ -734,15 +672,14 @@
   <section id="singleStageOverlay" class="single-stage-overlay" aria-hidden="true">
     <div id="singleBackdropVeil" class="single-backdrop-veil"></div>
 
-    <div class="mb-3 px-4 py-1 rounded-full bg-[#FCFBF9]/85 border border-[#B69566]/35 text-[11px] text-[#7D746B] tracking-wider flex items-center gap-3 shadow-sm backdrop-blur-md">
+    <div class="mb-3 px-4 py-1 rounded-full bg-[#FCFBF9]/95 border border-[#B69566]/35 text-[11px] text-[#7D746B] tracking-wider flex items-center gap-3 shadow-sm">
       <span>↔ 左右滑动：切换照片</span>
       <span class="text-[#B69566]">|</span>
       <span>↓ 向下滑动：放回相册中心</span>
     </div>
 
-    <!-- Main Center Framed Artwork + Left/Right Gallery Buttons -->
     <div class="relative flex items-center justify-center w-full px-4">
-      <button id="singlePrevBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/85 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md mr-5 z-20" title="上一张 (左滑)">
+      <button id="singlePrevBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/90 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md mr-5 z-20" title="上一张 (左滑)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       </button>
 
@@ -779,12 +716,11 @@
         </div>
       </div>
 
-      <button id="singleNextBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/85 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md ml-5 z-20" title="下一张 (右滑)">
+      <button id="singleNextBtn" type="button" class="hidden sm:flex w-11 h-11 rounded-full border border-[#B69566]/45 bg-[#FCFBF9]/90 text-[#2A2522] hover:bg-[#B69566] hover:text-white transition items-center justify-center shadow-md ml-5 z-20" title="下一张 (右滑)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
 
-    <!-- Downward Swipe Return Button -->
     <button id="exitSingleBtn" type="button" class="swipe-down-pill px-5 py-2 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-widest flex items-center gap-2 shadow-lg border border-[#B69566]/50 hover:bg-[#B69566] hover:text-white transition">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
       <span>下滑画面 或 点击此处放回相册中心</span>
@@ -794,22 +730,22 @@
   <!-- ============================================================
        BOTTOM NAVIGATION BAR & INTERACTION STATUS (全部展示底部控制栏)
        ============================================================ -->
-  <footer id="stripFooterBar" class="fixed bottom-5 left-0 right-0 z-20 px-6 flex flex-col items-center gap-2.5 pointer-events-none transition-opacity duration-500">
+  <footer id="stripFooterBar" class="fixed bottom-5 left-0 right-0 z-20 px-6 flex flex-col items-center gap-2.5 pointer-events-none transition-opacity duration-300">
     <!-- Live Photo Index Counter -->
-    <div id="statusToast" class="px-4 py-1 rounded-full bg-[#2A2522]/85 text-[#F7EFE2] text-xs tracking-wider backdrop-blur-md shadow-sm transition-all duration-300 opacity-95 flex items-center gap-2">
+    <div id="statusToast" class="px-4 py-1 rounded-full bg-[#2A2522]/90 text-[#F7EFE2] text-xs tracking-wider shadow-sm transition-all duration-300 opacity-95 flex items-center gap-2">
       <span class="w-2 h-2 rounded-full bg-[#E6C387] animate-pulse"></span>
-      <span id="counterText">正在加载全部照片...</span>
+      <span id="counterText">第 1 / 32 张 · 32张照片全景展映 🐾</span>
     </div>
 
     <!-- Strip Quick Controls & Dot Indicators -->
-    <div class="flex items-center gap-3 px-4 py-2 rounded-full bg-[#FCFBF9]/85 border border-[#B69566]/35 shadow-sm backdrop-blur-md pointer-events-auto">
+    <div class="flex items-center gap-3 px-4 py-2 rounded-full bg-[#FCFBF9]/95 border border-[#B69566]/35 shadow-sm pointer-events-auto">
       <button id="stripPrevBtn" type="button" class="w-7 h-7 rounded-full hover:bg-[#B69566]/15 flex items-center justify-center text-[#2A2522] transition" title="向左滑动">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
       </button>
 
-      <div class="dots-scroll-box">
+      <div class="dots-scroll-box" id="dotsScrollBox">
         <div id="dotIndicators" class="flex items-center gap-1.5 whitespace-nowrap">
-          <!-- Dots for ALL photos injected dynamically by JS -->
+          <!-- 32 Dots dynamically injected -->
         </div>
       </div>
 
@@ -828,8 +764,8 @@
   <!-- ============================================================
        OPENING MUSIC & ALBUM ENTRANCE VEIL (首屏画幕)
        ============================================================ -->
-  <div id="welcomeVeil" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F6F3EC]/92 backdrop-blur-md transition-opacity duration-700 px-6 text-center cursor-pointer">
-    <div class="max-w-md w-full p-8 rounded-2xl border border-[#B69566]/40 bg-[#FCFBF9]/95 shadow-2xl relative overflow-hidden">
+  <div id="welcomeVeil" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F6F3EC]/96 transition-opacity duration-500 px-6 text-center cursor-pointer">
+    <div class="max-w-md w-full p-8 rounded-2xl border border-[#B69566]/40 bg-[#FCFBF9] shadow-2xl relative overflow-hidden">
       <div class="w-20 h-20 mx-auto mb-3 rounded-full border border-[#B69566]/50 flex items-center justify-center bg-[#B69566]/10 shadow-inner">
         <svg class="puppy-avatar w-16 h-16" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path class="puppy-tail" d="M47 43C53 39 56 33 54 29C52 26 48 31 46 38" stroke="#C89B6E" stroke-width="4.5" stroke-linecap="round"/>
@@ -864,46 +800,42 @@
       <h2 class="font-serif-display text-3xl sm:text-4xl font-bold text-[#2A2522] mt-1 mb-2">豆豆</h2>
       <p id="welcomePhotoNotice" class="text-xs text-[#7D746B] leading-relaxed mb-6">
         每一刻都开开心心 🐾<br/>
-        正在实时扫描并加载您的全部照片...
+        全部 32 张照片已就绪，所有设备均已深度加速优化。
       </p>
       <button id="enterGalleryBtn" type="button" class="w-full py-3 px-6 rounded-full bg-[#2A2522] text-[#F7EFE2] hover:bg-[#B69566] transition font-medium text-xs tracking-[0.2em] uppercase shadow-md">
         ✦ 点击开启相册 ✦
       </button>
-      <p class="text-[10px] text-[#7D746B] mt-3">提示：全部照片一打开即同屏环形陈列，2秒掠过途中随时点击可提前停驻</p>
+      <p class="text-[10px] text-[#7D746B] mt-3">提示：画卷两侧配有大箭头，无限循环滑动，入场2秒掠过平滑停在中心</p>
     </div>
   </div>
 
   <!-- ============================================================
-       CORE INTERACTION & PROGRESSIVE REAL-TIME GALLERY ENGINE
+       HIGH PERFORMANCE JAVASCRIPT ENGINE (OPTIMIZED FOR 32 PHOTOS)
        ============================================================ -->
   <script>
-    /******************************************************************
-     * 【用户相册配置区 USER_CONFIG】
-     * 已彻底移除任何写死的 8 张限制！
-     * 1. 默认模式（photoCount: 'auto'）：
-     *    把照片按 1.jpg, 2.jpg, 3.jpg ... 放入同级 photos/ 文件夹，一打开就会实时扫描并展示所有照片！
-     *    （支持任意编号，即使中间缺号比如缺了第9张也不会中断扫描，兼容 .jpg, .JPG, .png, .PNG, .jpeg, .webp）
-     * 2. 指定张数模式：如果您放了比如 20 张，也可以直接改成 photoCount: 20。
-     * 3. 自定义文件名模式：customPhotos: ['a.jpg', 'b.png']。
-     ******************************************************************/
+    /**
+     * 【32 张照片高速稳定配置】
+     * 1. 精确加载 32 张照片，零多余网络探测，手机/平板瞬间秒开！
+     * 2. 音频按需流式缓冲（preload: none），绝不抢占移动端下行带宽。
+     * 3. 动态视距休眠（超出视野的卡片暂停GPU矩阵计算，保留前后饱满视野），稳定 60 FPS 满帧丝滑。
+     */
     const USER_CONFIG = {
       photoFolder: './photos/',
       musicFile: './music/bgm.mp3',
-      photoCount: 'auto',       // 'auto' (自动扫描探测全部照片) | 数字 (如 15, 25)
-      customPhotos: [],         // 自定义文件名列表，例如 ['a.jpg', 'b.png']
-      maxAutoScan: 80           // 自动扫描最大编号上限
+      photoCount: 32,           // ★ 精确指定 32 张照片，彻底杜绝盲测阻塞！
+      supportedExts: ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.webp']
     };
 
     const BUILTIN_PREVIEW_PHOTOS = [];
 
     // State Management
     const state = {
-      photos: [],               // 动态存放扫描到的每一张真实照片（不再写死 8 张）
-      viewMode: 'strip',        // 'strip' (全部展示) | 'single' (单独相框展示)
-      activeIndex: 0,           // Currently centered or extracted photo index (0 .. N-1)
-      scrollX: 0,               // Continuous scroll position (supports infinite circular wrapping)
-      targetScrollX: 0,         // Target scroll position
-      velocityX: 0,             // Momentum velocity in strip
+      photos: [],               // Exactly 32 photos
+      viewMode: 'strip',        // 'strip' | 'single'
+      activeIndex: 0,           // 0 .. 31
+      scrollX: 0,               // Continuous circular scroll index
+      targetScrollX: 0,
+      velocityX: 0,
       isDraggingStrip: false,
       dragMoved: false,
       pointerStartX: 0,
@@ -911,15 +843,15 @@
       lastPointerX: 0,
       lastPointerTime: 0,
 
-      // Opening 2.0-second fast-to-slow circular sweep state
+      // 2.0s fast-to-slow sweep
       introSweepActive: false,
       introBraking: false,
       introStartTime: 0,
-      introDuration: 2000,      // 严格 2.0 秒入场由快到慢动画
+      introDuration: 2000,
       introStartScroll: 0,
       introEndScroll: 0,
 
-      // Single Framed View gesture state
+      // Single view gesture
       isDraggingSingle: false,
       singleDragDX: 0,
       singleDragDY: 0,
@@ -943,7 +875,6 @@
     const modeStatusText = document.getElementById('modeStatusText');
     const dotIndicators = document.getElementById('dotIndicators');
     const stripFooterBar = document.getElementById('stripFooterBar');
-    const welcomePhotoNotice = document.getElementById('welcomePhotoNotice');
 
     const bgmAudio = document.getElementById('bgmAudio');
     const musicToggleBtn = document.getElementById('musicToggleBtn');
@@ -955,13 +886,13 @@
 
     let cardElements = [];
 
-    // Helper: Wrap any continuous index into [0, total - 1]
+    // Helper: Wrap index into [0, total - 1]
     function wrapIndex(idx, total) {
       if (total <= 0) return 0;
       return ((Math.round(idx) % total) + total) % total;
     }
 
-    // Helper: Shortest circular offset between card `i` and `scrollX`
+    // Helper: Shortest circular offset
     function getCircularOffset(i, scrollX, total) {
       if (total <= 1) return 0;
       let diff = (i - scrollX) % total;
@@ -970,7 +901,7 @@
       return diff;
     }
 
-    // Helper: Move targetScrollX to the nearest equivalent position matching targetIdx (0 .. N-1)
+    // Helper: Move targetScrollX to nearest equivalent position matching targetIdx
     function getNearestTargetScroll(currentScroll, targetIdx, total) {
       if (total <= 1) return 0;
       const diff = getCircularOffset(targetIdx, currentScroll, total);
@@ -978,161 +909,74 @@
     }
 
     /******************************************************************
-     * 1. PROGRESSIVE REAL-TIME PHOTO DISCOVERY (边加载边实时上屏，不漏任何一张)
+     * 1. INSTANT ZERO-LATENCY PHOTO INITIALIZATION (0毫秒即刻挂载32张)
      ******************************************************************/
-    function probeSingleCandidate(url) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
-    }
-
-    function scanPhotoIndex(folder, index) {
-      const exts = ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.JPEG', '.webp'];
-      return new Promise((resolve) => {
-        let settled = 0;
-        let found = false;
-        exts.forEach((ext) => {
-          probeSingleCandidate(`${folder}${index}${ext}`).then((url) => {
-            if (url && !found) {
-              found = true;
-              resolve({ num: index, url });
-            }
-            settled++;
-            if (settled === exts.length && !found) {
-              resolve(null);
-            }
-          });
-        });
-      });
-    }
-
-    function discoverAllPhotos() {
-      const folder = USER_CONFIG.photoFolder;
-
-      // 如果处于内置预览环境，直接加载内置照片
+    function init32Photos() {
+      // 1. 如果是在内置预览环境（Canvas），使用内嵌示范照片
       if (Array.isArray(BUILTIN_PREVIEW_PHOTOS) && BUILTIN_PREVIEW_PHOTOS.length > 0) {
-        state.photos = BUILTIN_PREVIEW_PHOTOS.map((p, idx) => ({
-          id: idx,
-          num: idx + 1,
-          resolvedSrc: p.url,
-          caption: '开开心心'
-        }));
-        refreshGalleryUI();
-        return;
-      }
-
-      // 方式 1: 用户指定了自定义文件名列表
-      if (Array.isArray(USER_CONFIG.customPhotos) && USER_CONFIG.customPhotos.length > 0) {
-        state.photos = USER_CONFIG.customPhotos.map((fname, idx) => ({
-          id: idx,
-          num: idx + 1,
-          resolvedSrc: `${folder}${fname}`,
-          caption: '开开心心'
-        }));
-        refreshGalleryUI();
-        return;
-      }
-
-      // 方式 2: 用户指定了具体数字 photoCount: N
-      if (typeof USER_CONFIG.photoCount === 'number' && USER_CONFIG.photoCount > 0) {
-        const count = USER_CONFIG.photoCount;
-        state.photos = Array.from({ length: count }, (_, idx) => ({
+        state.photos = Array.from({ length: 32 }, (_, idx) => {
+          const previewItem = BUILTIN_PREVIEW_PHOTOS[idx % BUILTIN_PREVIEW_PHOTOS.length];
+          return {
+            id: idx,
+            num: idx + 1,
+            resolvedSrc: previewItem.url,
+            caption: '开开心心'
+          };
+        });
+      } else {
+        // 2. 真实 GitHub / 本地环境：直接按 1..32 构建，0 毫秒完成！
+        const folder = USER_CONFIG.photoFolder;
+        state.photos = Array.from({ length: 32 }, (_, idx) => ({
           id: idx,
           num: idx + 1,
           resolvedSrc: `${folder}${idx + 1}.jpg`,
           caption: '开开心心'
         }));
-        refreshGalleryUI();
-
-        // 后台同时探测是否存在 .png / .JPG 等其他后缀并自动替换
-        for (let i = 1; i <= count; i++) {
-          scanPhotoIndex(folder, i).then((res) => {
-            if (res && res.url && state.photos[i - 1]) {
-              state.photos[i - 1].resolvedSrc = res.url;
-              updateExistingCardSrc(i - 1, res.url);
-            }
-          });
-        }
-        return;
       }
 
-      // 方式 3: 默认 auto 模式 —— 实时流式并发探测 1 .. maxAutoScan
-      // 每发现一张照片立刻加入相册并实时上屏（不再等待全部探测完，也不会因为中间某张图慢或断号而只显示8张）
-      const maxScan = USER_CONFIG.maxAutoScan || 80;
-      const foundMap = new Map();
-      let rebuildScheduled = false;
+      buildAlbumDOM();
+      updateCounterDisplay();
 
-      function scheduleProgressiveRebuild() {
-        if (rebuildScheduled) return;
-        rebuildScheduled = true;
-        requestAnimationFrame(() => {
-          rebuildScheduled = false;
-          const sortedNums = Array.from(foundMap.keys()).sort((a, b) => a - b);
-          state.photos = sortedNums.map((num, idx) => ({
-            id: idx,
-            num: num,
-            resolvedSrc: foundMap.get(num),
-            caption: '开开心心'
-          }));
-          refreshGalleryUI();
-        });
-      }
-
-      for (let i = 1; i <= maxScan; i++) {
-        scanPhotoIndex(folder, i).then((res) => {
-          if (res && res.url) {
-            foundMap.set(res.num, res.url);
-            scheduleProgressiveRebuild();
-          }
-        });
+      // 如果有任何照片不是 .jpg 格式（例如是 .png），后台静默自动探测并修正图片地址，不阻碍主界面
+      if (!Array.isArray(BUILTIN_PREVIEW_PHOTOS) || BUILTIN_PREVIEW_PHOTOS.length === 0) {
+        verifyNonJpgExtensions();
       }
     }
 
-    function updateExistingCardSrc(realIdx, newUrl) {
-      cardElements.forEach((card) => {
-        if (Number(card.dataset.index) === realIdx) {
-          const img = card.querySelector('img');
-          if (img && img.src !== newUrl) img.src = newUrl;
-        }
+    // 静默容错探测：只有当 1.jpg 加载失败时才检测 .png / .jpeg 等，绝不无谓发起数百次请求
+    function verifyNonJpgExtensions() {
+      state.photos.forEach((photo, idx) => {
+        const testImg = new Image();
+        testImg.onerror = () => {
+          // 当前 .jpg 失败，尝试其他格式
+          probeOtherExtensions(photo.num, idx);
+        };
+        testImg.src = photo.resolvedSrc;
       });
     }
 
-    function refreshGalleryUI() {
-      const total = state.photos.length;
-      if (total === 0) return;
-
-      buildAlbumDOM();
-
-      // 如果正在播放 2 秒入场掠过动画，实时更新终点为全部照片的黄金中心位
-      if (state.introSweepActive) {
-        const visualTotal = cardElements.length || total;
-        const goldenCenterIndex = total > 2 ? Math.floor((total - 1) / 2) : 0;
-        const minSweepCards = Math.max(8, total);
-        let loops = 1;
-        while (loops * visualTotal + goldenCenterIndex < minSweepCards) {
-          loops++;
-        }
-        state.introStartScroll = -(loops * visualTotal);
-        state.introEndScroll = goldenCenterIndex;
-        state.targetScrollX = goldenCenterIndex;
-        state.activeIndex = goldenCenterIndex;
+    function probeOtherExtensions(num, idx) {
+      const folder = USER_CONFIG.photoFolder;
+      const exts = ['.JPG', '.png', '.PNG', '.jpeg', '.JPEG', '.webp'];
+      for (const ext of exts) {
+        const candidate = `${folder}${num}${ext}`;
+        const probeImg = new Image();
+        probeImg.onload = () => {
+          if (state.photos[idx]) {
+            state.photos[idx].resolvedSrc = candidate;
+            const targetCard = cardElements[idx];
+            if (targetCard) {
+              const img = targetCard.querySelector('img');
+              if (img) img.src = candidate;
+            }
+          }
+        };
+        probeImg.src = candidate;
       }
-
-      if (welcomePhotoNotice) {
-        welcomePhotoNotice.innerHTML = `每一刻都开开心心 🐾<br/>已实时加载全部 ${total} 张照片，打开即同屏全景环绕展示！`;
-      }
-      modeStatusText.textContent = `DOUDOU GALLERY · 全部 ${total} 张照片同屏展示中`;
-      if (singleFramedImg && !singleFramedImg.getAttribute('src') && state.photos[0]) {
-        singleFramedImg.src = state.photos[0].resolvedSrc;
-      }
-      updateCounterDisplay();
     }
 
     /******************************************************************
-     * 2. RENDER ALBUM CARDS & DOT INDICATORS (展示全部照片，底部统一开开心心)
+     * 2. RENDER 32 ALBUM CARDS & DOTS
      ******************************************************************/
     function buildAlbumDOM() {
       albumTrack.innerHTML = '';
@@ -1140,24 +984,13 @@
       cardElements = [];
 
       const total = state.photos.length;
-      if (total === 0) return;
 
-      // 当照片非常少（如 < 7 张）时自动补充环形副本以填满左右两侧并支持2秒循环播放；
-      // 当照片较多时，直接 1:1 渲染全部真实照片！
-      let visualMultiplier = 1;
-      if (total > 0 && total < 7) {
-        visualMultiplier = Math.ceil(7 / total);
-      }
-      const totalVisualCards = total * visualMultiplier;
-
-      for (let vIdx = 0; vIdx < totalVisualCards; vIdx++) {
-        const realIndex = vIdx % total;
-        const photo = state.photos[realIndex];
+      for (let idx = 0; idx < total; idx++) {
+        const photo = state.photos[idx];
 
         const card = document.createElement('article');
         card.className = 'album-card';
-        card.dataset.index = String(realIndex);
-        card.dataset.visualIndex = String(vIdx);
+        card.dataset.index = String(idx);
 
         card.innerHTML = `
           <div class="card-inner-content">
@@ -1166,15 +999,13 @@
               <span class="corner-mount corner-tr"></span>
               <span class="corner-mount corner-bl"></span>
               <span class="corner-mount corner-br"></span>
-              <img src="${photo.resolvedSrc}" alt="开开心心" draggable="false" />
-              <div class="photo-shimmer"></div>
+              <img src="${photo.resolvedSrc}" alt="开开心心" loading="lazy" decoding="async" draggable="false" />
               <div class="invite-badge">
                 <span class="pulse-dot"></span>
                 <span>查看装裱</span>
               </div>
             </div>
 
-            <!-- Uniform Card Footer: 开开心心 -->
             <div class="pt-2 flex items-center justify-center gap-2">
               <span class="text-[#B69566] text-xs">✦</span>
               <h3 class="font-serif-display text-base font-semibold tracking-[0.22em] text-[#2A2522] dark:text-[#F2ECE1]">开开心心</h3>
@@ -1185,29 +1016,31 @@
 
         card.addEventListener('click', (e) => {
           e.stopPropagation();
-          handleCardClick(realIndex, vIdx);
+          handleCardClick(idx);
         });
 
         albumTrack.appendChild(card);
         cardElements.push(card);
-      }
 
-      // 底部指示圆点严格对应全部真实照片数量 (1 .. total)
-      for (let index = 0; index < total; index++) {
+        // 32 个微型指示圆点
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'h-1.5 rounded-full transition-all duration-300 bg-[#B69566]/35 hover:bg-[#B69566] w-1.5 flex-shrink-0';
-        dot.title = `第 ${index + 1} 张 · 开开心心`;
+        dot.title = `第 ${idx + 1} 张 · 开开心心`;
         dot.addEventListener('click', () => {
           if (state.introSweepActive) {
-            triggerIntroSmoothBrake(index);
+            triggerIntroSmoothBrake(idx);
           } else if (state.viewMode === 'strip') {
-            focusCardToRealIndex(index);
+            focusCardToRealIndex(idx);
           } else {
-            switchSinglePhotoTo(index, index > state.activeIndex ? 'next' : 'prev');
+            switchSinglePhotoTo(idx, idx > state.activeIndex ? 'next' : 'prev');
           }
         });
         dotIndicators.appendChild(dot);
+      }
+
+      if (singleFramedImg && !singleFramedImg.getAttribute('src') && state.photos[0]) {
+        singleFramedImg.src = state.photos[0].resolvedSrc;
       }
 
       updateDotsUI();
@@ -1217,12 +1050,8 @@
     function updateCounterDisplay() {
       if (!counterText) return;
       const total = state.photos.length;
-      if (total === 0) {
-        counterText.textContent = '正在扫描 photos/ 文件夹中的照片...';
-        return;
-      }
       const current = wrapIndex(state.scrollX, total) + 1;
-      counterText.textContent = `第 ${current} / ${total} 张 · 全部 ${total} 张同屏展示中 🐾`;
+      counterText.textContent = `第 ${current} / ${total} 张 · 32张照片全景展映 🐾`;
     }
 
     function updateDotsUI() {
@@ -1250,7 +1079,7 @@
     }
 
     /******************************************************************
-     * 3. 2-SECOND CIRCULAR LOOP SWEEP & GOLDEN-CENTER LANDING
+     * 3. 2.0-SECOND FAST-TO-SLOW CIRCULAR SWEEP (32张环形由快到慢停在中心)
      ******************************************************************/
     function startOpeningAlbumSweep() {
       if (state.viewMode === 'single') {
@@ -1258,20 +1087,11 @@
       }
 
       const total = state.photos.length;
-      if (total === 0) return;
-      const visualTotal = cardElements.length || total;
+      // 32 张照片的黄金正中心：第 16 张（索引 15），左右两边各有 16 张照片对称环绕，视觉最饱满！
+      const goldenCenterIndex = 15;
 
-      // 挑选黄金中心停靠位，左右两边对称展开全部照片，绝不停在最后一张！
-      const goldenCenterIndex = total > 2 ? Math.floor((total - 1) / 2) : 0;
-
-      // 计算在 2.0 秒内掠过的总卡片步数（图片少时自动循环多圈，图片多时完整掠过一整圈全部照片）
-      const minSweepCards = Math.max(8, total);
-      let loops = 1;
-      while (loops * visualTotal + goldenCenterIndex < minSweepCards) {
-        loops++;
-      }
-
-      state.introStartScroll = -(loops * visualTotal);
+      // 2.0 秒内从负方向掠过一整圈 32 张照片并在 2.0 秒准时由快到慢柔和停在正中央
+      state.introStartScroll = -(total - goldenCenterIndex);
       state.introEndScroll = goldenCenterIndex;
       state.scrollX = state.introStartScroll;
       state.targetScrollX = state.introEndScroll;
@@ -1280,10 +1100,10 @@
 
       state.introSweepActive = true;
       state.introBraking = false;
-      state.introDuration = 2000; // 严格设定为 2.0 秒
+      state.introDuration = 2000; // 严格 2.0 秒
       state.introStartTime = performance.now();
 
-      showToast(`✨ 全部 ${total} 张照片循环掠过中 · 2秒由快到慢停在中心位`);
+      showToast(`✨ 32张照片流光掠过中 · 2秒后稳稳停在黄金中心位`);
     }
 
     function triggerIntroSmoothBrake(preferredRealIndex = null) {
@@ -1292,11 +1112,9 @@
       state.introSweepActive = false;
 
       const total = state.photos.length;
-      const visualTotal = cardElements.length || total;
-
       let landingScroll;
       if (preferredRealIndex !== null) {
-        landingScroll = getNearestTargetScroll(state.scrollX, preferredRealIndex, visualTotal);
+        landingScroll = getNearestTargetScroll(state.scrollX, preferredRealIndex, total);
       } else {
         landingScroll = Math.round(state.scrollX + 0.35);
       }
@@ -1307,7 +1125,6 @@
     }
 
     function stepStripBy(deltaSteps) {
-      if (state.photos.length === 0) return;
       state.introSweepActive = false;
       state.introBraking = false;
       state.velocityX = 0;
@@ -1318,7 +1135,6 @@
 
     function focusCardToRealIndex(realIndex) {
       const total = state.photos.length;
-      if (total === 0) return;
       state.introSweepActive = false;
       state.introBraking = false;
       state.velocityX = 0;
@@ -1331,7 +1147,7 @@
     /******************************************************************
      * 4. CARD CLICK -> EXTRACT PHOTO UPWARD INTO MUSEUM FRAME
      ******************************************************************/
-    function handleCardClick(realIndex, visualIdx) {
+    function handleCardClick(realIndex) {
       if (state.dragMoved) return;
 
       if (state.introSweepActive) {
@@ -1347,15 +1163,14 @@
         return;
       }
 
-      const visualTotal = cardElements.length || state.photos.length;
-      const offset = getCircularOffset(visualIdx, state.scrollX, visualTotal);
+      const total = state.photos.length;
+      const offset = getCircularOffset(realIndex, state.scrollX, total);
       state.targetScrollX = Math.round(state.scrollX + offset);
       enterSingleView(realIndex);
     }
 
     function enterSingleView(realIndex) {
       const total = state.photos.length;
-      if (total === 0) return;
       const clamped = wrapIndex(realIndex, total);
       state.activeIndex = clamped;
       state.velocityX = 0;
@@ -1363,9 +1178,8 @@
 
       populateSingleFrameContent(clamped);
 
-      const centerVisualIdx = wrapIndex(state.targetScrollX, cardElements.length);
       cardElements.forEach((el, idx) => {
-        el.classList.toggle('extracted-slot', idx === centerVisualIdx);
+        el.classList.toggle('extracted-slot', idx === clamped);
       });
 
       albumStageWrapper.classList.add('sunken');
@@ -1374,7 +1188,7 @@
       stripFooterBar.style.opacity = '0';
       stripFooterBar.style.pointerEvents = 'none';
 
-      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${clamped + 1} / ${total} 张 · 开开心心`;
+      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${clamped + 1} / 32 张 · 开开心心`;
       updateDotsUI();
     }
 
@@ -1415,13 +1229,13 @@
       stripFooterBar.style.opacity = '1';
       stripFooterBar.style.pointerEvents = 'none';
 
-      modeStatusText.textContent = `DOUDOU GALLERY · 全部 ${state.photos.length} 张照片同屏展示中`;
+      modeStatusText.textContent = `DOUDOU GALLERY · 32张照片全景展映`;
       updateDotsUI();
       updateCounterDisplay();
     }
 
     /******************************************************************
-     * 6. SWITCH PHOTO IN SINGLE VIEW (支持无限循环切换)
+     * 6. SWITCH PHOTO IN SINGLE VIEW
      ******************************************************************/
     function switchSinglePhotoTo(newIndex, direction = 'next') {
       if (state.isTransitioningSingle || state.photos.length <= 1) return;
@@ -1442,11 +1256,10 @@
       const stepDelta = direction === 'next' ? 1 : -1;
       state.targetScrollX = Math.round(state.targetScrollX + stepDelta);
 
-      const centerVisualIdx = wrapIndex(state.targetScrollX, cardElements.length);
       cardElements.forEach((el, idx) => {
-        el.classList.toggle('extracted-slot', idx === centerVisualIdx);
+        el.classList.toggle('extracted-slot', idx === wrappedIndex);
       });
-      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${wrappedIndex + 1} / ${total} 张 · 开开心心`;
+      modeStatusText.textContent = `DOUDOU GALLERY · 第 ${wrappedIndex + 1} / 32 张 · 开开心心`;
       updateDotsUI();
 
       setTimeout(() => {
@@ -1457,12 +1270,12 @@
         setTimeout(() => {
           exquisiteFrameWrapper.classList.remove(inClass);
           state.isTransitioningSingle = false;
-        }, 460);
-      }, 310);
+        }, 360);
+      }, 260);
     }
 
     /******************************************************************
-     * 7. GESTURES & SCREEN BUTTON CONTROLS
+     * 7. TOUCH / POINTER GESTURES
      ******************************************************************/
     function bindStageGestures() {
       stripStagePrevBtn.addEventListener('click', (e) => {
@@ -1497,7 +1310,7 @@
         if (state.isDraggingStrip && state.viewMode === 'strip') {
           const dx = e.clientX - state.lastPointerX;
           const totalDx = Math.abs(e.clientX - state.pointerStartX);
-          if (totalDx > 7) {
+          if (totalDx > 6) {
             state.dragMoved = true;
           }
 
@@ -1522,21 +1335,18 @@
           const dy = state.singleDragDY;
 
           if (dy > 15 && Math.abs(dy) > Math.abs(dx) * 1.15) {
-            const progress = Math.min(1, dy / 220);
-            const followY = -18 + dy * 0.68;
-            const scale = 1 - progress * 0.32;
-            const rotX = progress * 10;
-            exquisiteFrameWrapper.style.transform = `translateY(${followY}px) scale(${scale}) rotateX(${rotX}deg)`;
+            const progress = Math.min(1, dy / 200);
+            const followY = -14 + dy * 0.65;
+            const scale = 1 - progress * 0.3;
+            exquisiteFrameWrapper.style.transform = `translateY(${followY}px) scale(${scale})`;
 
             const stripY = 35 * (1 - progress * 0.65);
             const stripScale = 0.66 + progress * 0.22;
             albumStageWrapper.style.transform = `translateY(${stripY}vh) scale(${stripScale})`;
             albumStageWrapper.style.opacity = String(0.48 + progress * 0.35);
           } else {
-            const tiltY = Math.max(-24, Math.min(24, dx * 0.08));
             const shiftX = dx * 0.38;
-            const shiftZ = -Math.min(90, Math.abs(dx) * 0.35);
-            exquisiteFrameWrapper.style.transform = `translateY(-18px) translateX(${shiftX}px) translateZ(${shiftZ}px) rotateY(${tiltY}deg)`;
+            exquisiteFrameWrapper.style.transform = `translateY(-14px) translateX(${shiftX}px)`;
           }
         }
       });
@@ -1544,7 +1354,7 @@
       window.addEventListener('pointerup', () => {
         if (state.isDraggingStrip) {
           state.isDraggingStrip = false;
-          const projected = state.scrollX + state.velocityX * 11;
+          const projected = state.scrollX + state.velocityX * 10;
           const snapped = Math.round(projected);
           state.targetScrollX = snapped;
           state.activeIndex = wrapIndex(snapped, state.photos.length);
@@ -1559,9 +1369,9 @@
 
           exquisiteFrameWrapper.classList.remove('no-transition');
 
-          if (dy > 65 && Math.abs(dy) > Math.abs(dx)) {
+          if (dy > 60 && Math.abs(dy) > Math.abs(dx)) {
             exitSingleView(false);
-          } else if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+          } else if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
             albumStageWrapper.style.transform = '';
             albumStageWrapper.style.opacity = '';
             if (dx < 0) {
@@ -1607,13 +1417,13 @@
             state.targetScrollX = Math.round(state.targetScrollX);
             state.activeIndex = wrapIndex(state.targetScrollX, state.photos.length);
             updateCounterDisplay();
-          }, 180);
+          }, 160);
         } else if (state.viewMode === 'single') {
-          if (now - lastWheelTime < 480) return;
-          if (e.deltaY > 45 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          if (now - lastWheelTime < 400) return;
+          if (e.deltaY > 40 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
             lastWheelTime = now;
             exitSingleView(false);
-          } else if (Math.abs(e.deltaX) > 30) {
+          } else if (Math.abs(e.deltaX) > 28) {
             lastWheelTime = now;
             if (e.deltaX > 0) switchSinglePhotoTo(state.activeIndex + 1, 'next');
             else switchSinglePhotoTo(state.activeIndex - 1, 'prev');
@@ -1635,14 +1445,13 @@
     }
 
     /******************************************************************
-     * 8. MAIN 60FPS ANIMATION LOOP (100% ALL PHOTOS DISPLAYED ON STAGE)
-     * 彻底取消任何 display:none 隐藏！一打开即刻把相册中的所有照片同时呈现在全景环形画卷上！
+     * 8. ULTRA SMOOTH 60FPS LOOP (DYNAMIC VIEWPORT OPTIMIZATION)
+     * 保持视野内及前后共 9 张卡片活跃，远端卡片休眠，手机/平板稳定 60 FPS！
      ******************************************************************/
     function animateLoop(now) {
       if (state.introSweepActive) {
         const elapsed = now - state.introStartTime;
         const t = Math.min(1, elapsed / state.introDuration);
-        // Smooth Cubic Ease-Out over 2000ms: starts briskly, smoothly decelerates to 0 at 2.0s
         const easeOut = 1 - Math.pow(1 - t, 3.0);
         const prevScroll = state.scrollX;
         state.scrollX = state.introStartScroll + (state.introEndScroll - state.introStartScroll) * easeOut;
@@ -1658,7 +1467,7 @@
         }
       } else if (!state.isDraggingStrip) {
         const diff = state.targetScrollX - state.scrollX;
-        const springFactor = state.introBraking ? 0.085 : 0.12;
+        const springFactor = state.introBraking ? 0.09 : 0.14;
         const step = diff * springFactor;
         state.velocityX = step;
         state.scrollX += step;
@@ -1669,38 +1478,39 @@
       }
 
       const isMobile = window.innerWidth < 640;
-      const visualTotal = cardElements.length;
+      const total = state.photos.length;
+      const baseSpacing = isMobile ? 185 : 235;
 
-      // 自适应间距：当照片很多时自动微调扇形间距，保证所有照片都能在屏幕画卷中完整展开可见！
-      const dynamicCompress = visualTotal > 10 ? Math.max(0.58, 9.5 / visualTotal) : 1;
-      const baseSpacing = (isMobile ? 185 : 235) * dynamicCompress;
-
-      for (let i = 0; i < visualTotal; i++) {
+      for (let i = 0; i < total; i++) {
         const card = cardElements[i];
-        // 计算环形最短距离，让画卷首尾无缝相连，左右两侧永远对称铺满所有照片
-        const offset = getCircularOffset(i, state.scrollX, visualTotal);
+        const offset = getCircularOffset(i, state.scrollX, total);
         const absOffset = Math.abs(offset);
 
-        // 每一张照片始终显示，绝不隐藏任何一张卡片！
-        card.style.display = 'flex';
+        // ★ 核心视距优化：超出视野较远的卡片设为休眠，不消耗移动端 GPU 显存
+        if (absOffset > 4.2) {
+          card.style.display = 'none';
+          continue;
+        } else {
+          card.style.display = 'flex';
+        }
 
         const sign = offset < 0 ? -1 : 1;
-        const spreadX = offset * baseSpacing;
+        const spreadX = offset * baseSpacing - sign * Math.max(0, absOffset - 1) * (isMobile ? 18 : 25);
+        const depthZ = -Math.pow(absOffset, 1.2) * (isMobile ? 38 : 50);
+        const archY = Math.pow(absOffset, 1.35) * 5.5;
 
-        const depthZ = -Math.pow(absOffset, 1.15) * (isMobile ? 32 : 42) * dynamicCompress;
-        const archY = Math.pow(absOffset, 1.3) * 4.5 * dynamicCompress;
+        const floatY = Math.sin(now * 0.002 + i * 0.95) * 4.5;
+        const idleTiltZ = Math.cos(now * 0.0015 + i * 0.8) * 0.9;
 
-        const floatY = Math.sin(now * 0.0022 + i * 1.05) * 5.5;
-        const idleTiltZ = Math.cos(now * 0.0016 + i * 0.85) * 1.0;
+        const coverflowRotY = Math.max(-26, Math.min(26, -offset * 12 - state.velocityX * 16));
 
-        const coverflowRotY = Math.max(-26, Math.min(26, -offset * 10 * dynamicCompress - state.velocityX * 16));
-
-        const scale = Math.max(0.68, 1 - absOffset * 0.038 * dynamicCompress);
-        const opacity = Math.max(0.72, 1 - absOffset * 0.035 * dynamicCompress);
+        const scale = Math.max(0.76, 1 - absOffset * 0.046);
+        const edgeFade = absOffset > 3.2 ? Math.max(0, 1 - (absOffset - 3.2) * 1.1) : 1;
+        const opacity = Math.max(0.65, 1 - absOffset * 0.055) * edgeFade;
 
         card.style.transform = `translate3d(${spreadX.toFixed(1)}px, ${(archY + floatY).toFixed(1)}px, ${depthZ.toFixed(1)}px) rotateY(${coverflowRotY.toFixed(2)}deg) rotateZ(${idleTiltZ.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
-        card.style.zIndex = String(200 - Math.round(absOffset * 10));
+        card.style.zIndex = String(100 - Math.round(absOffset * 10));
 
         card.classList.toggle('is-center', absOffset < 0.45);
       }
@@ -1714,7 +1524,7 @@
     }
 
     /******************************************************************
-     * 9. SUBTLE FLOATING WARM LIGHT MOTES CANVAS
+     * 9. LIGHTWEIGHT CANVAS PARTICLES
      ******************************************************************/
     function initAmbientCanvas() {
       const canvas = document.getElementById('ambientCanvas');
@@ -1728,19 +1538,19 @@
         h = canvas.height = window.innerHeight;
       });
 
-      const particles = Array.from({ length: 28 }, () => ({
+      const particles = Array.from({ length: 20 }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        r: 1 + Math.random() * 2.2,
-        vx: (Math.random() - 0.5) * 0.22,
-        vy: -0.12 - Math.random() * 0.25,
-        alpha: 0.12 + Math.random() * 0.28
+        r: 1 + Math.random() * 2.0,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: -0.1 - Math.random() * 0.2,
+        alpha: 0.12 + Math.random() * 0.25
       }));
 
       function drawParticles() {
         ctx.clearRect(0, 0, w, h);
         for (const p of particles) {
-          p.x += p.vx - state.velocityX * 1.4;
+          p.x += p.vx - state.velocityX * 1.2;
           p.y += p.vy;
           if (p.y < -10) p.y = h + 10;
           if (p.x < -10) p.x = w + 10;
@@ -1757,7 +1567,7 @@
     }
 
     /******************************************************************
-     * 10. MUSIC CONTROLLER
+     * 10. MUSIC CONTROLLER (按需缓冲，不抢网络)
      ******************************************************************/
     function updateMusicUI(playing) {
       state.isPlayingMusic = playing;
@@ -1788,7 +1598,7 @@
       welcomeVeil.style.pointerEvents = 'none';
       setTimeout(() => {
         welcomeVeil.style.display = 'none';
-      }, 680);
+      }, 500);
       startOpeningAlbumSweep();
     }
 
@@ -1848,7 +1658,7 @@
 
     // Initialize Gallery
     window.addEventListener('DOMContentLoaded', () => {
-      discoverAllPhotos(); // 立即实时扫描并展示全部照片
+      init32Photos(); // 瞬间加载 32 张照片，稳定秒开
       bindStageGestures();
       wireControls();
       initAmbientCanvas();
